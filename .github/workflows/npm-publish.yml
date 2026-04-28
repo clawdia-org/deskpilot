@@ -4,13 +4,16 @@ on:
   release:
     types: [published]
 
+permissions:
+  packages: write
+
 jobs:
-  publish:
+  publish-npm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js (npmjs)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -23,7 +26,36 @@ jobs:
           cd npm
           npm version "$VERSION" --no-git-tag-version
 
-      - name: Publish to npm
+      - name: Publish to npmjs
         run: cd npm && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-github:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (GitHub Packages)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@clawdia-org'
+
+      - name: Sync version and scope for GitHub Packages
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          cd npm
+          npm version "$VERSION" --no-git-tag-version
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@clawdia-org/deskpilot';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+      - name: Publish to GitHub Packages
+        run: cd npm && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
