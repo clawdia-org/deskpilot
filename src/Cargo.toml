@@ -1,8 +1,13 @@
 [package]
-name    = "agent-desktop"
+name    = "deskpilot"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+description = "AI agent tool for observing and controlling desktop applications via native OS accessibility trees"
+homepage = "https://github.com/clawdia-org/deskpilot"
+repository = "https://github.com/clawdia-org/deskpilot"
+keywords = ["desktop", "automation", "accessibility", "cli", "agent", "a11y", "ai"]
+categories = ["command-line-utilities", "accessibility"]
 
 [dependencies]
 agent-desktop-core.workspace = true
@@ -23,5 +28,5 @@ agent-desktop-windows = { path = "../crates/windows" }
 agent-desktop-linux = { path = "../crates/linux" }
 
 [[bin]]
-name = "agent-desktop"
+name = "deskpilot"
 path = "main.rs"

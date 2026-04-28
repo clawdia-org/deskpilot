@@ -1,0 +1,45 @@
+name: Publish crates.io
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish agent-desktop-core
+        run: cargo publish -p agent-desktop-core --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for crates.io to index
+        run: sleep 30
+
+      - name: Publish agent-desktop-macos
+        run: cargo publish -p agent-desktop-macos --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish agent-desktop-windows
+        run: cargo publish -p agent-desktop-windows --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish agent-desktop-linux
+        run: cargo publish -p agent-desktop-linux --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for crates.io to index
+        run: sleep 30
+
+      - name: Publish deskpilot (binary)
+        run: cargo publish -p deskpilot --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

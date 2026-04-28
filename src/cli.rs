@@ -5,7 +5,7 @@ pub use crate::cli_args_notifications::*;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "agent-desktop",
+    name = "deskpilot",
     about = "Desktop automation CLI for AI agents",
     long_about = None,
     after_help = "\
@@ -98,19 +98,19 @@ KEY COMBOS
   Modifiers:                 cmd, ctrl, alt, shift
 
 EXAMPLES
-  agent-desktop snapshot --app \"System Settings\" -i
-  agent-desktop find --role button --name \"OK\"
-  agent-desktop click @e5
-  agent-desktop check @e3
-  agent-desktop type @e2 \"hello@example.com\"
-  agent-desktop press cmd+z
-  agent-desktop drag --from @e1 --to @e5
-  agent-desktop hover @e5
-  agent-desktop minimize --app TextEdit
-  agent-desktop resize-window --app TextEdit --width 800 --height 600
-  agent-desktop mouse-click --xy 500,300
-  agent-desktop wait --text \"Loading complete\" --app Safari --timeout 5000
-  agent-desktop batch '[{\"command\":\"click\",\"args\":{\"ref_id\":\"@e1\"}}]'"
+  deskpilot snapshot --app \"System Settings\" -i
+  deskpilot find --role button --name \"OK\"
+  deskpilot click @e5
+  deskpilot check @e3
+  deskpilot type @e2 \"hello@example.com\"
+  deskpilot press cmd+z
+  deskpilot drag --from @e1 --to @e5
+  deskpilot hover @e5
+  deskpilot minimize --app TextEdit
+  deskpilot resize-window --app TextEdit --width 800 --height 600
+  deskpilot mouse-click --xy 500,300
+  deskpilot wait --text \"Loading complete\" --app Safari --timeout 5000
+  deskpilot batch '[{\"command\":\"click\",\"args\":{\"ref_id\":\"@e1\"}}]'"
 )]
 pub struct Cli {
     #[arg(

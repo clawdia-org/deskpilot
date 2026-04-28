@@ -1,219 +1,136 @@
 #!/usr/bin/env node
 
-const { existsSync, mkdirSync, chmodSync, unlinkSync, renameSync, writeFileSync, symlinkSync, lstatSync } = require('fs');
-const { readFileSync } = require('fs');
-const { join } = require('path');
-const { platform, arch } = require('os');
-const { execSync } = require('child_process');
-const { createHash } = require('crypto');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const zlib = require('zlib');
 
-const projectRoot = join(__dirname, '..');
-const binDir = join(projectRoot, 'bin');
-const packageJson = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'));
-const version = packageJson.version;
+const REPO = 'clawdia-org/deskpilot';
+const BINARY_NAME = 'deskpilot';
 
-const GITHUB_REPO = 'lahfir/agent-desktop';
-
-const TARGET_MAP = {
-  'darwin-arm64': 'aarch64-apple-darwin',
-  'darwin-x64': 'x86_64-apple-darwin',
-  'linux-x64': 'x86_64-unknown-linux-gnu',
-  'linux-arm64': 'aarch64-unknown-linux-gnu',
-  'win32-x64': 'x86_64-pc-windows-msvc',
-};
-
-const BINARY_NAME_MAP = {
-  'darwin-arm64': 'agent-desktop-darwin-arm64',
-  'darwin-x64': 'agent-desktop-darwin-x64',
-  'linux-x64': 'agent-desktop-linux-x64',
-  'linux-arm64': 'agent-desktop-linux-arm64',
-  'win32-x64': 'agent-desktop-win32-x64.exe',
-};
-
-const SUPPORTED_PLATFORMS = ['darwin'];
-
-function log(msg) {
-  process.stderr.write(`agent-desktop: ${msg}\n`);
+function getPlatform() {
+    switch (process.platform) {
+        case 'darwin': return 'apple-darwin';
+        case 'linux': return 'unknown-linux-gnu';
+        case 'win32': return 'pc-windows-msvc';
+        default: throw new Error(`Unsupported platform: ${process.platform}`);
+    }
 }
 
-function getPlatformKey() {
-  return `${platform()}-${arch()}`;
+function getArch() {
+    switch (process.arch) {
+        case 'x64': return 'x86_64';
+        case 'arm64': return 'aarch64';
+        default: throw new Error(`Unsupported architecture: ${process.arch}`);
+    }
 }
 
-function download(url, dest) {
-  const tmpDest = dest + '.tmp';
-  try {
-    execSync(`curl -fsSL --retry 3 --retry-delay 2 -o "${tmpDest}" "${url}"`, {
-      stdio: 'pipe',
-      timeout: 60000,
+async function getLatestVersion() {
+    return new Promise((resolve, reject) => {
+        https.get(`https://api.github.com/repos/${REPO}/releases/latest`, {
+            headers: { 'User-Agent': 'deskpilot-npm-installer' }
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    resolve(json.tag_name);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }).on('error', reject);
     });
-    renameSync(tmpDest, dest);
-  } catch (err) {
-    try { unlinkSync(tmpDest); } catch {}
-    throw new Error(`Failed to download ${url}: ${err.message}`);
-  }
 }
 
-function verifyChecksum(filePath, expectedHash) {
-  const fileBuffer = readFileSync(filePath);
-  const hash = createHash('sha256').update(fileBuffer).digest('hex');
-  return hash === expectedHash;
+async function downloadFile(url, dest) {
+    return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(dest);
+        https.get(url, {
+            headers: { 'User-Agent': 'deskpilot-npm-installer' }
+        }, (res) => {
+            if (res.statusCode === 302 || res.statusCode === 301) {
+                downloadFile(res.headers.location, dest).then(resolve).catch(reject);
+                return;
+            }
+            res.pipe(file);
+            file.on('finish', () => {
+                file.close();
+                resolve();
+            });
+        }).on('error', (err) => {
+            fs.unlink(dest, () => {});
+            reject(err);
+        });
+    });
 }
 
-function fixGlobalInstallBin() {
-  if (platform() === 'win32') return;
-
-  let npmBinDir;
-  try {
-    const prefix = execSync('npm prefix -g', { encoding: 'utf8', timeout: 5000 }).trim();
-    npmBinDir = join(prefix, 'bin');
-  } catch {
-    return;
-  }
-
-  const symlinkPath = join(npmBinDir, 'agent-desktop');
-  const platformKey = getPlatformKey();
-  const binaryName = BINARY_NAME_MAP[platformKey];
-  if (!binaryName) return;
-
-  const binaryPath = join(binDir, binaryName);
-
-  try {
-    const stat = lstatSync(symlinkPath);
-    if (!stat.isSymbolicLink()) return;
-  } catch {
-    return;
-  }
-
-  try {
-    unlinkSync(symlinkPath);
-    symlinkSync(binaryPath, symlinkPath);
-    log('Optimized: symlink points to native binary (zero overhead)');
-  } catch (err) {
-    log(`Could not optimize symlink: ${err.message}`);
-  }
+async function extractTarGz(src, dest) {
+    return new Promise((resolve, reject) => {
+        const gunzip = zlib.createGunzip();
+        const extract = require('tar').extract({ cwd: dest });
+        
+        fs.createReadStream(src)
+            .pipe(gunzip)
+            .pipe(extract)
+            .on('finish', resolve)
+            .on('error', reject);
+    });
 }
 
-function promptSkillInstall() {
-  const platformSkill = {
-    darwin: 'agent-desktop-macos',
-    win32: 'agent-desktop-windows',
-    linux: 'agent-desktop-linux',
-  }[platform()];
-
-  log('');
-  log('Claude Code skills available for agent-desktop!');
-  log('Install with:');
-  log('  claude mcp add-skill lahfir/agent-desktop');
-  if (platformSkill) {
-    log(`  claude mcp add-skill lahfir/${platformSkill}`);
-  }
-  log('');
+async function extractZip(src, dest) {
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip(src);
+    zip.extractAllTo(dest, true);
 }
 
-function main() {
-  if (process.env.AGENT_DESKTOP_SKIP_DOWNLOAD === '1') {
-    log('Skipping binary download (AGENT_DESKTOP_SKIP_DOWNLOAD=1)');
-    return;
-  }
-
-  const platformKey = getPlatformKey();
-  const target = TARGET_MAP[platformKey];
-  const binaryName = BINARY_NAME_MAP[platformKey];
-
-  if (!SUPPORTED_PLATFORMS.includes(platform()) || !target || !binaryName) {
-    log('agent-desktop currently supports macOS only.');
-    log('Windows and Linux support is coming in Phase 2.');
-    log(`See: https://github.com/${GITHUB_REPO}`);
-    return;
-  }
-
-  const binaryPath = join(binDir, binaryName);
-
-  if (process.env.AGENT_DESKTOP_BINARY_PATH) {
-    const customPath = process.env.AGENT_DESKTOP_BINARY_PATH;
-    if (existsSync(customPath)) {
-      try {
-        writeFileSync(binaryPath, readFileSync(customPath));
-        chmodSync(binaryPath, 0o755);
-        log(`Using binary from AGENT_DESKTOP_BINARY_PATH: ${customPath}`);
-        fixGlobalInstallBin();
-        promptSkillInstall();
-        return;
-      } catch (err) {
-        log(`Failed to copy from AGENT_DESKTOP_BINARY_PATH: ${err.message}`);
-      }
+async function main() {
+    const platform = getPlatform();
+    const arch = getArch();
+    const target = `${arch}-${platform}`;
+    
+    console.log(`Installing deskpilot for ${target}...`);
+    
+    const version = await getLatestVersion();
+    console.log(`Latest version: ${version}`);
+    
+    const ext = process.platform === 'win32' ? 'zip' : 'tar.gz';
+    const artifactName = `${BINARY_NAME}-${target}.${ext}`;
+    const downloadUrl = `https://github.com/${REPO}/releases/download/${version}/${artifactName}`;
+    
+    const tmpDir = path.join(__dirname, '..', 'tmp');
+    const binariesDir = path.join(__dirname, '..', 'binaries', process.platform, process.arch);
+    
+    fs.mkdirSync(tmpDir, { recursive: true });
+    fs.mkdirSync(binariesDir, { recursive: true });
+    
+    const archivePath = path.join(tmpDir, artifactName);
+    
+    console.log(`Downloading ${downloadUrl}...`);
+    await downloadFile(downloadUrl, archivePath);
+    
+    console.log('Extracting...');
+    if (ext === 'tar.gz') {
+        await extractTarGz(archivePath, tmpDir);
+    } else {
+        await extractZip(archivePath, tmpDir);
     }
-  }
-
-  if (existsSync(binaryPath)) {
-    chmodSync(binaryPath, 0o755);
-    log(`Native binary ready: ${binaryName}`);
-    fixGlobalInstallBin();
-    promptSkillInstall();
-    return;
-  }
-
-  if (!existsSync(binDir)) {
-    mkdirSync(binDir, { recursive: true });
-  }
-
-  const tarball = `agent-desktop-v${version}-${target}.tar.gz`;
-  const baseUrl = `https://github.com/${GITHUB_REPO}/releases/download/v${version}`;
-  const tarballUrl = `${baseUrl}/${tarball}`;
-  const checksumsUrl = `${baseUrl}/checksums.txt`;
-  const tarballPath = join(binDir, tarball);
-  const checksumsPath = join(binDir, 'checksums.txt');
-
-  log(`Downloading native binary for ${platformKey}...`);
-
-  try {
-    download(tarballUrl, tarballPath);
-
-    try {
-      download(checksumsUrl, checksumsPath);
-      const checksums = readFileSync(checksumsPath, 'utf8');
-      const expectedLine = checksums.split('\n').find((line) => line.includes(tarball));
-      if (expectedLine) {
-        const expectedHash = expectedLine.split(/\s+/)[0];
-        if (!verifyChecksum(tarballPath, expectedHash)) {
-          log('WARNING: Checksum verification failed.');
-          unlinkSync(tarballPath);
-          unlinkSync(checksumsPath);
-          return;
-        }
-        log('Checksum verified');
-      }
-      unlinkSync(checksumsPath);
-    } catch {
-      log('Checksum verification skipped');
-    }
-
-    execSync(`tar -xzf "${tarballPath}" -C "${binDir}"`, { stdio: 'pipe' });
-
-    const extractedBinary = join(binDir, 'agent-desktop');
-    if (existsSync(extractedBinary) && extractedBinary !== binaryPath) {
-      renameSync(extractedBinary, binaryPath);
-    }
-
-    chmodSync(binaryPath, 0o755);
-    unlinkSync(tarballPath);
-    log(`Installed native binary: ${binaryName}`);
-  } catch (err) {
-    log(`Could not download native binary: ${err.message}`);
-    log('');
-    log('Download manually from:');
-    log(`  ${tarballUrl}`);
-    log(`Then place at: ${binaryPath}`);
-
-    try { if (existsSync(tarballPath)) unlinkSync(tarballPath); } catch {}
-    try { if (existsSync(checksumsPath)) unlinkSync(checksumsPath); } catch {}
-    return;
-  }
-
-  fixGlobalInstallBin();
-
-  promptSkillInstall();
+    
+    const binaryName = process.platform === 'win32' ? `${BINARY_NAME}.exe` : BINARY_NAME;
+    const extractedBinary = path.join(tmpDir, binaryName);
+    const destBinary = path.join(binariesDir, binaryName);
+    
+    fs.copyFileSync(extractedBinary, destBinary);
+    fs.chmodSync(destBinary, 0o755);
+    
+    // Cleanup
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    
+    console.log('Installation complete!');
 }
 
-main();
+main().catch(err => {
+    console.error('Installation failed:', err.message);
+    process.exit(1);
+});

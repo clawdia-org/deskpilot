@@ -1,0 +1,29 @@
+name: Publish npm
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Sync version from release tag
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          cd npm
+          npm version "$VERSION" --no-git-tag-version
+
+      - name: Publish to npm
+        run: cd npm && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
