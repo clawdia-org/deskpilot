@@ -7,9 +7,9 @@ mod imp {
         kAXErrorSuccess, kAXPositionAttribute, kAXSizeAttribute, kAXValueTypeCGPoint,
         kAXValueTypeCGSize, AXUIElementPerformAction, AXUIElementSetAttributeValue,
     };
-    use deskpilot_core::error::ErrorCode;
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
     use core_graphics::geometry::{CGPoint, CGSize};
+    use deskpilot_core::error::ErrorCode;
     use std::ffi::c_void;
 
     extern "C" {

@@ -142,12 +142,8 @@ mod imp {
 
         tracing::debug!("activate_web: all AX methods had no effect, CGClick");
         let _ = crate::system::app_ops::ensure_app_focused(pid);
-        crate::actions::dispatch::click_via_bounds(
-            el,
-            deskpilot_core::action::MouseButton::Left,
-            1,
-        )
-        .is_ok()
+        crate::actions::dispatch::click_via_bounds(el, deskpilot_core::action::MouseButton::Left, 1)
+            .is_ok()
     }
 
     fn web_action_had_effect(app: &AXElement, el: &AXElement, before: &PreActionState) -> bool {

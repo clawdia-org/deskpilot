@@ -114,8 +114,8 @@ pub(crate) fn ax_scroll(
         kAXErrorSuccess, AXUIElementPerformAction, AXUIElementPostKeyboardEvent,
         AXUIElementSetAttributeValue,
     };
-    use deskpilot_core::action::Direction;
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
+    use deskpilot_core::action::Direction;
 
     let scroll_area = find_scroll_area(el);
     let target = scroll_area.as_ref().unwrap_or(el);
@@ -238,8 +238,8 @@ fn try_scroll_bar_value_shift(
     amount: u32,
 ) -> bool {
     use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
-    use deskpilot_core::action::Direction;
     use core_foundation::{base::TCFType, number::CFNumber, string::CFString};
+    use deskpilot_core::action::Direction;
 
     if !crate::actions::ax_helpers::is_attr_settable(bar, "AXValue") {
         return false;
@@ -280,8 +280,8 @@ fn try_scroll_bar_sub_elements(
     direction: &deskpilot_core::action::Direction,
 ) -> bool {
     use accessibility_sys::{kAXErrorSuccess, AXUIElementPerformAction};
-    use deskpilot_core::action::Direction;
     use core_foundation::{base::TCFType, string::CFString};
+    use deskpilot_core::action::Direction;
 
     let children = crate::tree::copy_ax_array(bar, "AXChildren").unwrap_or_default();
     let target_subroles = match direction {

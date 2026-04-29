@@ -6,9 +6,9 @@ mod cli_args_notifications;
 mod dispatch;
 mod dispatch_notifications;
 
-use deskpilot_core::adapter::PlatformAdapter;
 use clap::{CommandFactory, Parser};
 use cli::{Cli, Commands};
+use deskpilot_core::adapter::PlatformAdapter;
 use std::io::{BufWriter, Write};
 
 fn main() {
