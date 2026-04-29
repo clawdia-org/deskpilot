@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.14](https://github.com/clawdia-org/deskpilot/compare/v0.1.13...v0.1.14) (2026-04-29)
+
+
+### Code Refactoring
+
+* rename agent-desktop to deskpilot across codebase ([#54](https://github.com/clawdia-org/deskpilot/issues/54))
+
 ## [0.1.13](https://github.com/lahfir/deskpilot/compare/v0.1.12...v0.1.13) (2026-04-17)
 
 
