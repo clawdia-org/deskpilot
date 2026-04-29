@@ -89,3 +89,4 @@ FORMULA
           git add Formula/deskpilot.rb
           git commit -m "chore: update deskpilot to ${{ steps.release.outputs.version }}"
           git push
+
