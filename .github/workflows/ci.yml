@@ -81,33 +81,35 @@ jobs:
       - name: Generate formula with stub values
         run: |
           mkdir -p /tmp/homebrew-tap/Formula
-          cat > /tmp/homebrew-tap/Formula/deskpilot.rb << 'EOF'
-class Deskpilot < Formula
-  desc "AI agent tool for observing and controlling desktop apps via accessibility APIs"
-  homepage "https://github.com/clawdia-org/deskpilot"
-  version "0.1.13"
-  license "Apache-2.0"
+          python3 -c "
+          content = '''class Deskpilot < Formula
+            desc \"AI agent tool for observing and controlling desktop apps via accessibility APIs\"
+            homepage \"https://github.com/clawdia-org/deskpilot\"
+            version \"0.1.13\"
+            license \"Apache-2.0\"
 
-  on_macos do
-    on_arm do
-      url "https://github.com/clawdia-org/deskpilot/releases/download/v0.1.13/deskpilot-aarch64-apple-darwin.tar.gz"
-      sha256 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    end
-    on_intel do
-      url "https://github.com/clawdia-org/deskpilot/releases/download/v0.1.13/deskpilot-x86_64-apple-darwin.tar.gz"
-      sha256 "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    end
-  end
+            on_macos do
+              on_arm do
+                url \"https://github.com/clawdia-org/deskpilot/releases/download/v0.1.13/deskpilot-aarch64-apple-darwin.tar.gz\"
+                sha256 \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"
+              end
+              on_intel do
+                url \"https://github.com/clawdia-org/deskpilot/releases/download/v0.1.13/deskpilot-x86_64-apple-darwin.tar.gz\"
+                sha256 \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"
+              end
+            end
 
-  def install
-    bin.install "deskpilot"
-  end
+            def install
+              bin.install \"deskpilot\"
+            end
 
-  test do
-    output = shell_output("#{bin}/deskpilot version --json")
-    assert_match version.to_s, output
-  end
-end
-EOF
+            test do
+              output = shell_output(\"#{bin}/deskpilot version --json\")
+              assert_match version.to_s, output
+            end
+          end
+          '''
+          open('/tmp/homebrew-tap/Formula/deskpilot.rb', 'w').write(content)
+          "
       - name: Validate formula syntax
         run: ruby -c /tmp/homebrew-tap/Formula/deskpilot.rb
