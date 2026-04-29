@@ -1,3 +1,5 @@
+#![cfg(target_os = "macos")]
+
 pub mod actions;
 pub mod adapter;
 pub mod input;
