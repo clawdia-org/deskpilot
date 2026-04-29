@@ -1,3 +1,5 @@
+mod system;
+
 use deskpilot_core::{
     action::{Action, ActionResult, DragParams, MouseEvent, WindowOp},
     adapter::{
@@ -91,6 +93,12 @@ impl PlatformAdapter for WindowsAdapter {
 
     fn clear_clipboard(&self) -> Result<(), AdapterError> {
         crate::system::input::clear_clipboard()
+    }
+
+    fn focused_window(&self) -> Result<Option<WindowInfo>, AdapterError> {
+        // TODO: Implement Windows focused window detection
+        // Use GetForegroundWindow API to get the focused window
+        Err(AdapterError::not_supported("focused_window on Windows"))
     }
 
     fn list_notifications(

@@ -52,32 +52,6 @@ mod tests {
         assert!(img.width > 0, "Screenshot width should be positive");
         assert!(img.height > 0, "Screenshot height should be positive");
     }
-
-    #[test]
-    fn test_key_name_to_vk() {
-        use crate::system::key_dispatch::key_name_to_vk;
-
-        // Test letter keys
-        assert_eq!(key_name_to_vk("a"), Some(0x41));
-        assert_eq!(key_name_to_vk("Z"), Some(0x5A));
-
-        // Test number keys
-        assert_eq!(key_name_to_vk("0"), Some(0x30));
-        assert_eq!(key_name_to_vk("9"), Some(0x39));
-
-        // Test special keys
-        assert_eq!(key_name_to_vk("return"), Some(0x0D));
-        assert_eq!(key_name_to_vk("enter"), Some(0x0D));
-        assert_eq!(key_name_to_vk("escape"), Some(0x1B));
-        assert_eq!(key_name_to_vk("space"), Some(0x20));
-
-        // Test function keys
-        assert_eq!(key_name_to_vk("f1"), Some(0x70));
-        assert_eq!(key_name_to_vk("f12"), Some(0x7B));
-
-        // Test unknown key
-        assert_eq!(key_name_to_vk("unknown"), None);
-    }
 }
 
 #[cfg(not(target_os = "windows"))]

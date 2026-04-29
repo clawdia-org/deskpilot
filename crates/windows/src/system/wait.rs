@@ -1,5 +1,4 @@
 use deskpilot_core::error::AdapterError;
-use std::time::{Duration, Instant};
 
 /// Wait for a context menu to open or close on Windows.
 ///

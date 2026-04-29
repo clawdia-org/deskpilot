@@ -1,4 +1,4 @@
-use deskpilot_core::{adapter::ImageBuffer, adapter::ImageFormat, error::AdapterError};
+use deskpilot_core::{adapter::ImageBuffer, error::AdapterError};
 
 /// Capture a screenshot of a specific window by PID.
 pub fn capture_app(_pid: i32) -> Result<ImageBuffer, AdapterError> {

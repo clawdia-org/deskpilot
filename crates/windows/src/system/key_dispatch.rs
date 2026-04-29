@@ -118,3 +118,60 @@ pub fn press_for_app(_app_name: &str, _combo: &KeyCombo) -> Result<ActionResult,
     // 3. Synthesize keyboard input with modifiers
     Err(AdapterError::not_supported("press_key_for_app on Windows"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_key_name_to_vk_letters() {
+        assert_eq!(key_name_to_vk("a"), Some(0x41));
+        assert_eq!(key_name_to_vk("Z"), Some(0x5A));
+        assert_eq!(key_name_to_vk("m"), Some(0x4D));
+    }
+
+    #[test]
+    fn test_key_name_to_vk_numbers() {
+        assert_eq!(key_name_to_vk("0"), Some(0x30));
+        assert_eq!(key_name_to_vk("9"), Some(0x39));
+    }
+
+    #[test]
+    fn test_key_name_to_vk_special() {
+        assert_eq!(key_name_to_vk("return"), Some(0x0D));
+        assert_eq!(key_name_to_vk("enter"), Some(0x0D));
+        assert_eq!(key_name_to_vk("escape"), Some(0x1B));
+        assert_eq!(key_name_to_vk("esc"), Some(0x1B));
+        assert_eq!(key_name_to_vk("space"), Some(0x20));
+        assert_eq!(key_name_to_vk("tab"), Some(0x09));
+        assert_eq!(key_name_to_vk("backspace"), Some(0x08));
+        assert_eq!(key_name_to_vk("delete"), Some(0x2E));
+    }
+
+    #[test]
+    fn test_key_name_to_vk_arrows() {
+        assert_eq!(key_name_to_vk("up"), Some(0x26));
+        assert_eq!(key_name_to_vk("down"), Some(0x28));
+        assert_eq!(key_name_to_vk("left"), Some(0x25));
+        assert_eq!(key_name_to_vk("right"), Some(0x27));
+    }
+
+    #[test]
+    fn test_key_name_to_vk_function_keys() {
+        assert_eq!(key_name_to_vk("f1"), Some(0x70));
+        assert_eq!(key_name_to_vk("f12"), Some(0x7B));
+    }
+
+    #[test]
+    fn test_key_name_to_vk_unknown() {
+        assert_eq!(key_name_to_vk("unknown"), None);
+        assert_eq!(key_name_to_vk(""), None);
+    }
+
+    #[test]
+    fn test_key_name_to_vk_case_insensitive() {
+        assert_eq!(key_name_to_vk("A"), Some(0x41));
+        assert_eq!(key_name_to_vk("RETURN"), Some(0x0D));
+        assert_eq!(key_name_to_vk("F1"), Some(0x70));
+    }
+}
