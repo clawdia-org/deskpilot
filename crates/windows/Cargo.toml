@@ -7,3 +7,7 @@ license.workspace = true
 [dependencies]
 deskpilot-core.workspace = true
 thiserror.workspace          = true
+
+[target.'cfg(windows)'.dependencies]
+# Windows API bindings - will be added when implementing native code
+# windows = { version = "0.58", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_System_Threading"] }
