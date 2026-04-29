@@ -81,6 +81,7 @@ WAIT
 SYSTEM
   status                     Adapter health, platform, and permission state
   permissions                Check accessibility permission (--request to prompt)
+  capabilities               Supported commands and features for current platform
   version                    Version string (--json for machine-readable)
 
 BATCH
@@ -233,6 +234,8 @@ pub enum Commands {
     Version(VersionArgs),
     #[command(about = "Execute multiple commands from a JSON array (--stop-on-error)")]
     Batch(BatchArgs),
+    #[command(about = "Show supported commands and features for the current platform")]
+    Capabilities,
 }
 
 impl Commands {
@@ -291,6 +294,7 @@ impl Commands {
             Self::Permissions(_) => "permissions",
             Self::Version(_) => "version",
             Self::Batch(_) => "batch",
+            Self::Capabilities => "capabilities",
         }
     }
 }

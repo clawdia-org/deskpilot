@@ -1,6 +1,6 @@
 use deskpilot_core::{
     commands::{
-        clipboard_clear, clipboard_get, clipboard_set, close_app, dismiss_all_notifications,
+        capabilities, clipboard_clear, clipboard_get, clipboard_set, close_app, dismiss_all_notifications,
         dismiss_notification, focus_window, launch, list_apps, list_notifications, list_surfaces,
         list_windows, maximize, minimize, move_window, notification_action, permissions,
         resize_window, restore, status, version, wait,
@@ -200,6 +200,8 @@ pub fn dispatch(
         "version" => version::execute(version::VersionArgs {
             json: args.get("json").and_then(|v| v.as_bool()).unwrap_or(false),
         }),
+
+        "capabilities" => capabilities::execute(capabilities::CapabilitiesArgs),
 
         other => Err(AppError::invalid_input(format!(
             "Unknown batch command '{other}'"

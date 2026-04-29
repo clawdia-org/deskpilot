@@ -1,4 +1,5 @@
 pub mod batch;
+pub mod capabilities;
 pub mod check;
 pub mod clear;
 pub mod click;

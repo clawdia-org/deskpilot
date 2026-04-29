@@ -2,7 +2,7 @@ use deskpilot_core::{
     action::{Direction, MouseButton},
     adapter::PlatformAdapter,
     commands::{
-        batch, check, clear, click, clipboard_clear, clipboard_get, clipboard_set, close_app,
+        batch, capabilities, check, clear, click, clipboard_clear, clipboard_get, clipboard_set, close_app,
         collapse, double_click, drag, expand, find, focus, focus_window, get, helpers, hover,
         is_check, key_down, key_up, launch, list_apps, list_surfaces, list_windows, maximize,
         minimize, mouse_click, mouse_down, mouse_move, mouse_up, move_window, permissions, press,
@@ -300,6 +300,8 @@ pub fn dispatch(cmd: Commands, adapter: &dyn PlatformAdapter) -> Result<Value, A
         }
 
         Commands::Version(a) => version::execute(version::VersionArgs { json: a.json }),
+
+        Commands::Capabilities => capabilities::execute(capabilities::CapabilitiesArgs),
 
         Commands::Batch(a) => {
             let commands = batch::parse_commands(&a.commands_json)?;
