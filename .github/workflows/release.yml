@@ -52,7 +52,7 @@ jobs:
           echo 'linker = "aarch64-linux-gnu-gcc"' >> .cargo/config.toml
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }} -p deskpilot
 
       - name: Create archive (Unix)
         if: runner.os != 'Windows'
