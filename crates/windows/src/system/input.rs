@@ -1,4 +1,7 @@
-use deskpilot_core::{action::{DragParams, MouseEvent}, error::AdapterError};
+use deskpilot_core::{
+    action::{DragParams, MouseEvent},
+    error::AdapterError,
+};
 
 /// Synthesize a mouse event (move, click, scroll).
 pub fn synthesize_mouse(_event: MouseEvent) -> Result<(), AdapterError> {

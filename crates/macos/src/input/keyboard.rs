@@ -119,7 +119,7 @@ mod imp {
     fn modifier_keycode(m: &deskpilot_core::action::Modifier) -> u16 {
         use deskpilot_core::action::Modifier;
         match m {
-            Modifier::Cmd => 55,
+            Modifier::Cmd | Modifier::Meta => 55, // Meta = Cmd on macOS
             Modifier::Shift => 56,
             Modifier::Alt => 58,
             Modifier::Ctrl => 59,
