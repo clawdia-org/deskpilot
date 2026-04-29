@@ -3,6 +3,11 @@ name: Update Homebrew tap
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v0.1.13)'
+        required: true
 
 jobs:
   update-tap:
@@ -11,7 +16,7 @@ jobs:
       - name: Get release info
         id: release
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name || inputs.tag }}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "version_no_v=${VERSION#v}" >> $GITHUB_OUTPUT
 
