@@ -3,7 +3,7 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const zlib = require('zlib');
+const { execFileSync } = require('child_process');
 
 const REPO = 'clawdia-org/deskpilot';
 const BINARY_NAME = 'deskpilot';
@@ -25,108 +25,91 @@ function getArch() {
     }
 }
 
-async function getLatestVersion() {
+function getVersion() {
+    // Use the npm package version to ensure reproducible installs
+    const pkg = require('../package.json');
+    return `v${pkg.version}`;
+}
+
+function downloadFile(url, dest) {
     return new Promise((resolve, reject) => {
-        https.get(`https://api.github.com/repos/${REPO}/releases/latest`, {
-            headers: { 'User-Agent': 'deskpilot-npm-installer' }
-        }, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                try {
-                    const json = JSON.parse(data);
-                    resolve(json.tag_name);
-                } catch (e) {
-                    reject(e);
+        const request = (targetUrl) => {
+            https.get(targetUrl, { headers: { 'User-Agent': 'deskpilot-npm-installer' } }, (res) => {
+                if (res.statusCode === 301 || res.statusCode === 302) {
+                    // Consume and discard the redirect response body before following
+                    res.resume();
+                    return request(res.headers.location);
                 }
-            });
-        }).on('error', reject);
+                if (res.statusCode !== 200) {
+                    res.resume();
+                    return reject(new Error(`HTTP ${res.statusCode} downloading ${targetUrl}`));
+                }
+                const file = fs.createWriteStream(dest);
+                res.pipe(file);
+                file.on('finish', () => file.close(resolve));
+                file.on('error', (err) => {
+                    fs.unlink(dest, () => {});
+                    reject(err);
+                });
+            }).on('error', reject);
+        };
+        request(url);
     });
 }
 
-async function downloadFile(url, dest) {
-    return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(dest);
-        https.get(url, {
-            headers: { 'User-Agent': 'deskpilot-npm-installer' }
-        }, (res) => {
-            if (res.statusCode === 302 || res.statusCode === 301) {
-                downloadFile(res.headers.location, dest).then(resolve).catch(reject);
-                return;
-            }
-            res.pipe(file);
-            file.on('finish', () => {
-                file.close();
-                resolve();
-            });
-        }).on('error', (err) => {
-            fs.unlink(dest, () => {});
-            reject(err);
-        });
-    });
-}
-
-async function extractTarGz(src, dest) {
-    return new Promise((resolve, reject) => {
-        const gunzip = zlib.createGunzip();
-        const extract = require('tar').extract({ cwd: dest });
-        
-        fs.createReadStream(src)
-            .pipe(gunzip)
-            .pipe(extract)
-            .on('finish', resolve)
-            .on('error', reject);
-    });
-}
-
-async function extractZip(src, dest) {
-    const AdmZip = require('adm-zip');
-    const zip = new AdmZip(src);
-    zip.extractAllTo(dest, true);
+function extract(archivePath, destDir) {
+    if (archivePath.endsWith('.zip')) {
+        if (process.platform === 'win32') {
+            execFileSync('powershell', [
+                '-NoProfile', '-Command',
+                `Expand-Archive -Path "${archivePath}" -DestinationPath "${destDir}" -Force`
+            ]);
+        } else {
+            execFileSync('unzip', ['-o', archivePath, '-d', destDir]);
+        }
+    } else {
+        execFileSync('tar', ['-xzf', archivePath, '-C', destDir]);
+    }
 }
 
 async function main() {
     const platform = getPlatform();
     const arch = getArch();
     const target = `${arch}-${platform}`;
-    
+
     console.log(`Installing deskpilot for ${target}...`);
-    
-    const version = await getLatestVersion();
-    console.log(`Latest version: ${version}`);
-    
+
+    const version = getVersion();
+    console.log(`Version: ${version}`);
+
     const ext = process.platform === 'win32' ? 'zip' : 'tar.gz';
     const artifactName = `${BINARY_NAME}-${target}.${ext}`;
     const downloadUrl = `https://github.com/${REPO}/releases/download/${version}/${artifactName}`;
-    
+
     const tmpDir = path.join(__dirname, '..', 'tmp');
     const binariesDir = path.join(__dirname, '..', 'binaries', process.platform, process.arch);
-    
+
     fs.mkdirSync(tmpDir, { recursive: true });
     fs.mkdirSync(binariesDir, { recursive: true });
-    
+
     const archivePath = path.join(tmpDir, artifactName);
-    
+
     console.log(`Downloading ${downloadUrl}...`);
     await downloadFile(downloadUrl, archivePath);
-    
+
     console.log('Extracting...');
-    if (ext === 'tar.gz') {
-        await extractTarGz(archivePath, tmpDir);
-    } else {
-        await extractZip(archivePath, tmpDir);
-    }
-    
+    extract(archivePath, tmpDir);
+
     const binaryName = process.platform === 'win32' ? `${BINARY_NAME}.exe` : BINARY_NAME;
     const extractedBinary = path.join(tmpDir, binaryName);
     const destBinary = path.join(binariesDir, binaryName);
-    
+
     fs.copyFileSync(extractedBinary, destBinary);
     fs.chmodSync(destBinary, 0o755);
-    
+
     // Cleanup
     fs.rmSync(tmpDir, { recursive: true, force: true });
-    
+
     console.log('Installation complete!');
 }
 

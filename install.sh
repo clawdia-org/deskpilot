@@ -64,14 +64,14 @@ download_binary() {
     fi
 
     DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${ARTIFACT}.${EXT}"
-    CHECKSUM_URL="https://github.com/${REPO}/releases/download/${VERSION}/${ARTIFECT}.${EXT}.sha256"
+    CHECKSUM_URL="https://github.com/${REPO}/releases/download/${VERSION}/${ARTIFACT}.${EXT}.sha256"
 
     info "Downloading ${ARTIFACT}.${EXT}..."
     curl -fsSL -o "/tmp/${ARTIFACT}.${EXT}" "${DOWNLOAD_URL}"
 
     # Download checksum
     CHECKSUM_FILE="/tmp/${ARTIFACT}.${EXT}.sha256"
-    if curl -fsSL -o "${CHECKSUM_FILE}" "${DOWNLOAD_URL}.sha256" 2>/dev/null; then
+    if curl -fsSL -o "${CHECKSUM_FILE}" "${CHECKSUM_URL}" 2>/dev/null; then
         info "Verifying checksum..."
         cd /tmp
         if command -v sha256sum >/dev/null 2>&1; then
@@ -115,7 +115,11 @@ install_binary() {
         warn "Cannot write to ${INSTALL_DIR}, using ~/.local/bin instead"
         INSTALL_DIR="${HOME}/.local/bin"
         mkdir -p "${INSTALL_DIR}"
-        DEST="${INSTALL_DIR}/${BINARY_NAME}"
+        if [ -f "/tmp/${BINARY_NAME}.exe" ]; then
+            DEST="${INSTALL_DIR}/${BINARY_NAME}.exe"
+        else
+            DEST="${INSTALL_DIR}/${BINARY_NAME}"
+        fi
     fi
 
     info "Installing to ${DEST}..."

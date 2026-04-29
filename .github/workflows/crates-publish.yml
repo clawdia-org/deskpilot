@@ -13,6 +13,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      # --no-verify is required because workspace path dependencies don't resolve
+      # correctly during publish verification. The crates are still validated by CI.
       - name: Publish agent-desktop-core
         run: cargo publish -p agent-desktop-core --no-verify
         env:
