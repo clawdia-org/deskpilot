@@ -39,9 +39,14 @@ mod tests {
             focused_only: false,
             app: None,
         };
-        let windows = adapter.list_windows(&filter).expect("list_windows should work");
+        let windows = adapter
+            .list_windows(&filter)
+            .expect("list_windows should work");
         // Should have at least some visible windows
-        assert!(!windows.is_empty(), "Should have at least one visible window");
+        assert!(
+            !windows.is_empty(),
+            "Should have at least one visible window"
+        );
     }
 
     #[test]
@@ -62,6 +67,6 @@ mod tests {
     #[test]
     fn test_noop_on_non_windows() {
         // Placeholder test for non-Windows platforms
-        assert!(true);
+        // This test is a no-op on non-Windows platforms
     }
 }
