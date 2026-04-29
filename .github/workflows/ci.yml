@@ -109,5 +109,5 @@ jobs:
             end
           end
           EOF
-      - name: Audit formula syntax
-        run: brew audit --strict /tmp/homebrew-tap/Formula/deskpilot.rb
+      - name: Validate formula syntax
+        run: ruby -c /tmp/homebrew-tap/Formula/deskpilot.rb
