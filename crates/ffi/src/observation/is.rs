@@ -3,8 +3,8 @@ use crate::error::{set_last_error, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdFindQuery, AdWindowInfo};
 use crate::AdAdapter;
-use agent_desktop_core::adapter::{SnapshotSurface, TreeOptions};
-use agent_desktop_core::node::AccessibilityNode;
+use deskpilot_core::adapter::{SnapshotSurface, TreeOptions};
+use deskpilot_core::node::AccessibilityNode;
 use std::os::raw::c_char;
 
 /// Checks whether a named boolean state is set on the first element
@@ -68,8 +68,8 @@ pub unsafe extern "C" fn ad_is(
         let prop = match c_to_string(property) {
             Some(s) => s,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "property is null or invalid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;
@@ -78,8 +78,8 @@ pub unsafe extern "C" fn ad_is(
         let property = match SupportedProperty::from_name(&prop) {
             Some(p) => p,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "unknown property — expected one of: focused, disabled, enabled",
                 ));
                 return AdResult::ErrInvalidArgs;
@@ -112,8 +112,8 @@ pub unsafe extern "C" fn ad_is(
         ) {
             Some(n) => n,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::ElementNotFound,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::ElementNotFound,
                     "no element matched the find query",
                 ));
                 return AdResult::ErrElementNotFound;

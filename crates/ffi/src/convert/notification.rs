@@ -1,6 +1,6 @@
 use crate::convert::string::{free_c_string, opt_string_to_c, string_to_c_lossy};
 use crate::types::AdNotificationInfo;
-use agent_desktop_core::notification::NotificationInfo;
+use deskpilot_core::notification::NotificationInfo;
 use std::os::raw::c_char;
 use std::ptr;
 

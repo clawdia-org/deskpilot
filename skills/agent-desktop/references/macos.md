@@ -1,6 +1,6 @@
 # macOS Platform
 
-macOS-specific details for agent-desktop. Covers permissions, accessibility API behavior, troubleshooting, and platform quirks.
+macOS-specific details for deskpilot. Covers permissions, accessibility API behavior, troubleshooting, and platform quirks.
 
 ## Prerequisites
 
@@ -10,10 +10,10 @@ macOS requires explicit Accessibility permission for any process that reads or c
 
 ```bash
 # Check permission status
-agent-desktop permissions
+deskpilot permissions
 
 # Trigger the system dialog
-agent-desktop permissions --request
+deskpilot permissions --request
 ```
 
 **To grant manually:**
@@ -22,7 +22,7 @@ agent-desktop permissions --request
 3. Add your terminal application (Terminal.app, iTerm2, Warp, VS Code, etc.)
 4. Toggle it ON
 
-**Important:** The permission is granted to the **terminal application**, not to agent-desktop itself. If you run agent-desktop from a different terminal, you need to grant that terminal too.
+**Important:** The permission is granted to the **terminal application**, not to deskpilot itself. If you run deskpilot from a different terminal, you need to grant that terminal too.
 
 After granting, restart the terminal for the permission to take effect.
 
@@ -33,7 +33,7 @@ After granting, restart the terminal for the permission to take effect.
 
 ## macOS Accessibility API (AX)
 
-agent-desktop uses the macOS Accessibility API (`AXUIElement`) to read and manipulate UI elements.
+deskpilot uses the macOS Accessibility API (`AXUIElement`) to read and manipulate UI elements.
 
 ### How It Works
 
@@ -44,7 +44,7 @@ agent-desktop uses the macOS Accessibility API (`AXUIElement`) to read and manip
 
 ### Smart Activation Chain
 
-When you run `click @ref`, agent-desktop doesn't just do a simple click. It runs a multi-step activation chain:
+When you run `click @ref`, deskpilot doesn't just do a simple click. It runs a multi-step activation chain:
 
 1. **AXScrollToVisible** — ensure element is on screen
 2. **AXPress** — standard press action
@@ -79,10 +79,10 @@ macOS apps can have multiple accessibility surfaces:
 
 ```bash
 # List available surfaces
-agent-desktop list-surfaces --app "Finder"
+deskpilot list-surfaces --app "Finder"
 
 # Snapshot a specific surface
-agent-desktop snapshot --app "Finder" --surface menu -i
+deskpilot snapshot --app "Finder" --surface menu -i
 ```
 
 ### Surface-First Snapshot Rule
@@ -100,7 +100,7 @@ agent-desktop snapshot --app "Finder" --surface menu -i
 
 ## Notification Center
 
-agent-desktop interacts with macOS Notification Center via the accessibility API.
+deskpilot interacts with macOS Notification Center via the accessibility API.
 
 ### How It Works
 
@@ -143,7 +143,7 @@ macOS groups notifications from the same app into stacks. Dismissing the top not
 ```
 
 **Fix:**
-1. `agent-desktop permissions --request` to trigger dialog
+1. `deskpilot permissions --request` to trigger dialog
 2. System Settings > Privacy & Security > Accessibility
 3. Add and enable your terminal
 4. Restart terminal
@@ -189,7 +189,7 @@ The accessibility action was rejected. This can happen when:
 
 The application isn't running. Launch it first:
 ```bash
-agent-desktop launch "App Name"
+deskpilot launch "App Name"
 ```
 
 ### Slow Snapshots
@@ -228,12 +228,12 @@ Window IDs (like `w-4521`) are assigned by macOS and are stable for the lifetime
 
 macOS uses `cmd` (Command) as the primary modifier:
 ```bash
-agent-desktop press cmd+c   # Copy
-agent-desktop press cmd+v   # Paste
-agent-desktop press cmd+z   # Undo
-agent-desktop press cmd+s   # Save
-agent-desktop press cmd+w   # Close window
-agent-desktop press cmd+q   # Quit app (use with caution!)
+deskpilot press cmd+c   # Copy
+deskpilot press cmd+v   # Paste
+deskpilot press cmd+z   # Undo
+deskpilot press cmd+s   # Save
+deskpilot press cmd+w   # Close window
+deskpilot press cmd+q   # Quit app (use with caution!)
 ```
 
 ### Full-Screen Apps

@@ -1,6 +1,6 @@
 use crate::convert::string::{free_c_string, opt_string_to_c, string_to_c_lossy};
 use crate::types::AdAppInfo;
-use agent_desktop_core::node::AppInfo;
+use deskpilot_core::node::AppInfo;
 use std::os::raw::c_char;
 use std::ptr;
 

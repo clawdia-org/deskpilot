@@ -17,7 +17,7 @@ tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 base64             = "0.22"
 rustc-hash         = "2.1"
-agent-desktop-core = { path = "crates/core" }
+deskpilot-core = { path = "crates/core" }
 
 [profile.release]
 opt-level     = "z"

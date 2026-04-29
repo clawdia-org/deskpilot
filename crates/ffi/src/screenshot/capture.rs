@@ -2,7 +2,7 @@ use crate::error::{set_last_error, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdImageBuffer, AdImageFormat, AdScreenshotKind, AdScreenshotTarget};
 use crate::AdAdapter;
-use agent_desktop_core::adapter::{ImageFormat, ScreenshotTarget as CoreScreenshotTarget};
+use deskpilot_core::adapter::{ImageFormat, ScreenshotTarget as CoreScreenshotTarget};
 use std::ptr;
 
 /// Allocates and returns an opaque `AdImageBuffer`. The handle owns its
@@ -33,8 +33,8 @@ pub unsafe extern "C" fn ad_screenshot(
         let kind = match AdScreenshotKind::from_c(t.kind) {
             Some(k) => k,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "invalid screenshot kind discriminant",
                 ));
                 return AdResult::ErrInvalidArgs;

@@ -1,6 +1,6 @@
 use crate::error::{self, AdResult};
 use crate::ffi_try::{trap_panic, trap_panic_ptr, trap_panic_void};
-use agent_desktop_core::adapter::PlatformAdapter;
+use deskpilot_core::adapter::PlatformAdapter;
 
 pub struct AdAdapter {
     pub(crate) inner: Box<dyn PlatformAdapter>,
@@ -9,17 +9,17 @@ pub struct AdAdapter {
 fn build_adapter() -> Box<dyn PlatformAdapter> {
     #[cfg(target_os = "macos")]
     {
-        Box::new(agent_desktop_macos::MacOSAdapter::new())
+        Box::new(deskpilot_macos::MacOSAdapter::new())
     }
 
     #[cfg(target_os = "windows")]
     {
-        Box::new(agent_desktop_windows::WindowsAdapter::new())
+        Box::new(deskpilot_windows::WindowsAdapter::new())
     }
 
     #[cfg(target_os = "linux")]
     {
-        Box::new(agent_desktop_linux::LinuxAdapter::new())
+        Box::new(deskpilot_linux::LinuxAdapter::new())
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
@@ -66,11 +66,11 @@ pub unsafe extern "C" fn ad_check_permissions(adapter: *const AdAdapter) -> AdRe
         crate::pointer_guard::guard_non_null!(adapter, c"adapter is null");
         let adapter = unsafe { &*adapter };
         match adapter.inner.check_permissions() {
-            agent_desktop_core::adapter::PermissionStatus::Granted => AdResult::Ok,
-            agent_desktop_core::adapter::PermissionStatus::Denied { suggestion } => {
+            deskpilot_core::adapter::PermissionStatus::Granted => AdResult::Ok,
+            deskpilot_core::adapter::PermissionStatus::Denied { suggestion } => {
                 error::set_last_error(
-                    &agent_desktop_core::error::AdapterError::new(
-                        agent_desktop_core::error::ErrorCode::PermDenied,
+                    &deskpilot_core::error::AdapterError::new(
+                        deskpilot_core::error::ErrorCode::PermDenied,
                         "Accessibility permission not granted",
                     )
                     .with_suggestion(suggestion),

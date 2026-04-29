@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     commands::{
         clipboard_clear, clipboard_get, clipboard_set, close_app, dismiss_all_notifications,
         dismiss_notification, focus_window, launch, list_apps, list_notifications, list_surfaces,
@@ -14,7 +14,7 @@ use crate::batch_dispatch::{req_str, str_field};
 pub fn dispatch(
     command: &str,
     args: Value,
-    adapter: &dyn agent_desktop_core::adapter::PlatformAdapter,
+    adapter: &dyn deskpilot_core::adapter::PlatformAdapter,
 ) -> Result<Value, AppError> {
     match command {
         "launch" => launch::execute(

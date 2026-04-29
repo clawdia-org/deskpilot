@@ -29,8 +29,8 @@ pub unsafe extern "C" fn ad_get_clipboard(
                 let c = string_to_c(&text);
                 if c.is_null() {
                     error::set_last_error(
-                        &agent_desktop_core::error::AdapterError::new(
-                            agent_desktop_core::error::ErrorCode::Internal,
+                        &deskpilot_core::error::AdapterError::new(
+                            deskpilot_core::error::ErrorCode::Internal,
                             "clipboard text contains an interior NUL and cannot be represented as a C string",
                         ),
                     );
@@ -67,8 +67,8 @@ pub unsafe extern "C" fn ad_set_clipboard(
         let text = match c_to_string(text) {
             Some(s) => s,
             None => {
-                error::set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                error::set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "text is null or invalid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;

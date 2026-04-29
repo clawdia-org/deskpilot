@@ -4,7 +4,7 @@ use crate::error::{self, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdAction, AdActionResult, AdNativeHandle};
 use crate::AdAdapter;
-use agent_desktop_core::adapter::NativeHandle;
+use deskpilot_core::adapter::NativeHandle;
 
 /// # Safety
 ///
@@ -31,8 +31,8 @@ pub unsafe extern "C" fn ad_execute_action(
         let adapter = &*adapter;
         let handle_ref = &*handle;
         if handle_ref.ptr.is_null() {
-            error::set_last_error(&agent_desktop_core::error::AdapterError::new(
-                agent_desktop_core::error::ErrorCode::InvalidArgs,
+            error::set_last_error(&deskpilot_core::error::AdapterError::new(
+                deskpilot_core::error::ErrorCode::InvalidArgs,
                 "handle.ptr is null — the handle has already been freed or was never resolved",
             ));
             return AdResult::ErrInvalidArgs;
@@ -41,8 +41,8 @@ pub unsafe extern "C" fn ad_execute_action(
         let core_action = match action_from_c(action_ref) {
             Ok(a) => a,
             Err(msg) => {
-                error::set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                error::set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     msg,
                 ));
                 return AdResult::ErrInvalidArgs;

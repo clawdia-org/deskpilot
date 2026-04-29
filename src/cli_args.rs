@@ -13,8 +13,8 @@ pub enum Surface {
 }
 
 impl Surface {
-    pub fn to_core(&self) -> agent_desktop_core::adapter::SnapshotSurface {
-        use agent_desktop_core::adapter::SnapshotSurface;
+    pub fn to_core(&self) -> deskpilot_core::adapter::SnapshotSurface {
+        use deskpilot_core::adapter::SnapshotSurface;
         match self {
             Self::Window => SnapshotSurface::Window,
             Self::Focused => SnapshotSurface::Focused,

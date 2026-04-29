@@ -1,4 +1,4 @@
-use agent_desktop_core::adapter::PermissionStatus;
+use deskpilot_core::adapter::PermissionStatus;
 
 #[cfg(target_os = "macos")]
 mod imp {

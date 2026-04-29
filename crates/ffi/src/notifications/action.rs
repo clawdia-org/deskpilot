@@ -4,7 +4,7 @@ use crate::error::{set_last_error, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::AdActionResult;
 use crate::AdAdapter;
-use agent_desktop_core::notification::NotificationIdentity;
+use deskpilot_core::notification::NotificationIdentity;
 use std::os::raw::c_char;
 
 /// Triggers the named action on the notification at `index`. Typical
@@ -54,8 +54,8 @@ pub unsafe extern "C" fn ad_notification_action(
         let action = match c_to_string(action_name) {
             Some(s) => s,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "action_name is null or invalid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;

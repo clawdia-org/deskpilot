@@ -1,4 +1,4 @@
-use agent_desktop_core::error::AdapterError;
+use deskpilot_core::error::AdapterError;
 
 #[cfg(target_os = "macos")]
 mod imp {
@@ -62,7 +62,7 @@ mod imp {
         };
         if err != kAXErrorSuccess {
             return Err(AdapterError::new(
-                agent_desktop_core::error::ErrorCode::ActionFailed,
+                deskpilot_core::error::ErrorCode::ActionFailed,
                 format!("AXSetAttributeValue({attr}) failed (err={err})"),
             )
             .with_suggestion("Attribute may be read-only. Try 'click' or 'type' instead."));

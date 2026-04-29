@@ -3,7 +3,7 @@ use crate::ffi_try::trap_panic;
 use crate::types::{AdWindowInfo, AdWindowOp, AdWindowOpKind};
 use crate::windows::to_core::ad_window_to_core;
 use crate::AdAdapter;
-use agent_desktop_core::action::WindowOp;
+use deskpilot_core::action::WindowOp;
 
 /// Performs a window-manager operation (`Resize`, `Move`, `Minimize`,
 /// `Maximize`, `Restore`) on `win`. Width / height / x / y are consulted
@@ -38,8 +38,8 @@ pub unsafe extern "C" fn ad_window_op(
         let kind = match AdWindowOpKind::from_c(op.kind) {
             Some(k) => k,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "invalid window op kind discriminant",
                 ));
                 return AdResult::ErrInvalidArgs;

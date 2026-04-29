@@ -10,7 +10,7 @@ keywords = ["desktop", "automation", "accessibility", "cli", "agent"]
 categories = ["command-line-utilities", "accessibility"]
 
 [dependencies]
-agent-desktop-core.workspace = true
+deskpilot-core.workspace = true
 clap.workspace               = true
 serde.workspace              = true
 serde_json.workspace         = true
@@ -19,13 +19,13 @@ tracing.workspace            = true
 tracing-subscriber.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
-agent-desktop-macos = { path = "../crates/macos" }
+deskpilot-macos = { path = "../crates/macos" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-agent-desktop-windows = { path = "../crates/windows" }
+deskpilot-windows = { path = "../crates/windows" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-agent-desktop-linux = { path = "../crates/linux" }
+deskpilot-linux = { path = "../crates/linux" }
 
 [[bin]]
 name = "deskpilot"

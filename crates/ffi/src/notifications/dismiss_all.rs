@@ -55,7 +55,7 @@ pub unsafe extern "C" fn ad_dismiss_all_notifications(
                     .into_iter()
                     .enumerate()
                     .map(|(i, msg)| {
-                        let info = agent_desktop_core::notification::NotificationInfo {
+                        let info = deskpilot_core::notification::NotificationInfo {
                             index: i,
                             app_name: String::new(),
                             title: String::from("dismiss failed"),

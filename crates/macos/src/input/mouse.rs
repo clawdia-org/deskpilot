@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     action::{DragParams, MouseButton, MouseEvent, MouseEventKind},
     error::AdapterError,
 };

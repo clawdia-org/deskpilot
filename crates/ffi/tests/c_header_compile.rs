@@ -41,8 +41,8 @@ fn committed_header_compiles_with_every_public_enum_constant() {
         }
     };
 
-    let tmp = std::env::temp_dir().join("agent_desktop_header_abi_test.c");
-    let obj = std::env::temp_dir().join("agent_desktop_header_abi_test.o");
+    let tmp = std::env::temp_dir().join("deskpilot_header_abi_test.c");
+    let obj = std::env::temp_dir().join("deskpilot_header_abi_test.o");
     // Touch every named-constant family so a missing enum block in the
     // header fails compilation with "undeclared identifier". Keeping the
     // list close to cbindgen.toml's [export].include ensures they stay
@@ -51,7 +51,7 @@ fn committed_header_compiles_with_every_public_enum_constant() {
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "agent_desktop.h"
+#include "deskpilot.h"
 
 int main(void) {
     (void)AD_ACTION_KIND_CLICK;
@@ -87,7 +87,7 @@ int main(void) {
 
     assert!(
         status.success(),
-        "C compile of agent_desktop.h failed — a named enum constant is missing. \
+        "C compile of deskpilot.h failed — a named enum constant is missing. \
          Check crates/ffi/cbindgen.toml [export].include."
     );
 }

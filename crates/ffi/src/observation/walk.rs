@@ -1,4 +1,4 @@
-use agent_desktop_core::node::AccessibilityNode;
+use deskpilot_core::node::AccessibilityNode;
 
 /// Finds the first node in DFS order that matches every provided filter.
 /// Filters are ANDed; a `None` filter means "don't care". Substring
@@ -54,7 +54,7 @@ fn contains_ignore_case(haystack: &str, needle: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use agent_desktop_core::node::Rect;
+    use deskpilot_core::node::Rect;
 
     fn node(role: &str, name: Option<&str>, value: Option<&str>) -> AccessibilityNode {
         AccessibilityNode {

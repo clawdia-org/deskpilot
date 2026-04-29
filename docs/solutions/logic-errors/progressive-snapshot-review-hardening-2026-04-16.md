@@ -3,7 +3,7 @@
 ## title: Harden progressive snapshot after review (skeleton reset, drill window, validation, depth)
 date: 2026-04-16
 category: logic-errors
-module: agent-desktop-core
+module: deskpilot-core
 problem_type: logic_error
 component: tooling
 symptoms:

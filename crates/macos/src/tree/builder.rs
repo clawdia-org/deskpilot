@@ -1,4 +1,4 @@
-use agent_desktop_core::node::AccessibilityNode;
+use deskpilot_core::node::AccessibilityNode;
 use rustc_hash::FxHashSet;
 
 use super::element::{

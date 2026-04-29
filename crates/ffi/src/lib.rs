@@ -1,7 +1,7 @@
-//! # agent-desktop FFI
+//! # deskpilot FFI
 //!
 //! C-ABI surface over `PlatformAdapter`. Exposes
-//! `libagent_desktop_ffi.{dylib,so,dll}` to Python / Swift / Go / Node /
+//! `libdeskpilot_ffi.{dylib,so,dll}` to Python / Swift / Go / Node /
 //! C++ consumers.
 //!
 //! ## ⚠ Thread safety (macOS)
@@ -27,7 +27,7 @@
 //! The cdylib must be built with the workspace's `release-ffi` profile:
 //!
 //! ```text
-//! cargo build --profile release-ffi -p agent-desktop-ffi
+//! cargo build --profile release-ffi -p deskpilot-ffi
 //! ```
 //!
 //! The workspace `release` profile keeps `panic = "abort"` to hold the

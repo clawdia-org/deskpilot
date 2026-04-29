@@ -1,5 +1,5 @@
 #[cfg(target_os = "macos")]
-use agent_desktop_core::error::{AdapterError, ErrorCode};
+use deskpilot_core::error::{AdapterError, ErrorCode};
 
 #[cfg(target_os = "macos")]
 use crate::tree::AXElement;
@@ -107,14 +107,14 @@ fn select_child_by_name(el: &AXElement, name: &str) -> bool {
 #[cfg(target_os = "macos")]
 pub(crate) fn ax_scroll(
     el: &AXElement,
-    direction: &agent_desktop_core::action::Direction,
+    direction: &deskpilot_core::action::Direction,
     amount: u32,
 ) -> Result<(), AdapterError> {
     use accessibility_sys::{
         kAXErrorSuccess, AXUIElementPerformAction, AXUIElementPostKeyboardEvent,
         AXUIElementSetAttributeValue,
     };
-    use agent_desktop_core::action::Direction;
+    use deskpilot_core::action::Direction;
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
 
     let scroll_area = find_scroll_area(el);
@@ -234,11 +234,11 @@ pub(crate) fn ax_scroll(
 #[cfg(target_os = "macos")]
 fn try_scroll_bar_value_shift(
     bar: &AXElement,
-    direction: &agent_desktop_core::action::Direction,
+    direction: &deskpilot_core::action::Direction,
     amount: u32,
 ) -> bool {
     use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
-    use agent_desktop_core::action::Direction;
+    use deskpilot_core::action::Direction;
     use core_foundation::{base::TCFType, number::CFNumber, string::CFString};
 
     if !crate::actions::ax_helpers::is_attr_settable(bar, "AXValue") {
@@ -277,10 +277,10 @@ fn read_scroll_bar_value(bar: &AXElement) -> Option<f64> {
 #[cfg(target_os = "macos")]
 fn try_scroll_bar_sub_elements(
     bar: &AXElement,
-    direction: &agent_desktop_core::action::Direction,
+    direction: &deskpilot_core::action::Direction,
 ) -> bool {
     use accessibility_sys::{kAXErrorSuccess, AXUIElementPerformAction};
-    use agent_desktop_core::action::Direction;
+    use deskpilot_core::action::Direction;
     use core_foundation::{base::TCFType, string::CFString};
 
     let children = crate::tree::copy_ax_array(bar, "AXChildren").unwrap_or_default();
@@ -304,7 +304,7 @@ fn try_scroll_bar_sub_elements(
 #[cfg(target_os = "macos")]
 fn try_focus_child_in_direction(
     scroll_area: &AXElement,
-    _direction: &agent_desktop_core::action::Direction,
+    _direction: &deskpilot_core::action::Direction,
 ) -> bool {
     use accessibility_sys::{kAXErrorSuccess, AXUIElementSetAttributeValue};
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
@@ -333,7 +333,7 @@ fn try_focus_child_in_direction(
 #[cfg(target_os = "macos")]
 fn try_select_row_in_direction(
     scroll_area: &AXElement,
-    _direction: &agent_desktop_core::action::Direction,
+    _direction: &deskpilot_core::action::Direction,
 ) -> bool {
     use accessibility_sys::{kAXErrorSuccess, kAXRoleAttribute, AXUIElementSetAttributeValue};
     use core_foundation::{

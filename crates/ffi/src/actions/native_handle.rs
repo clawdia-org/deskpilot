@@ -2,7 +2,7 @@ use crate::error::{set_last_error, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::AdNativeHandle;
 use crate::AdAdapter;
-use agent_desktop_core::adapter::NativeHandle;
+use deskpilot_core::adapter::NativeHandle;
 
 /// Releases a handle previously returned by `ad_resolve_element` and
 /// zeroes the caller's struct so accidentally calling this twice is
@@ -35,8 +35,8 @@ pub unsafe extern "C" fn ad_free_handle(
 ) -> AdResult {
     trap_panic(|| unsafe {
         if adapter.is_null() {
-            set_last_error(&agent_desktop_core::error::AdapterError::new(
-                agent_desktop_core::error::ErrorCode::InvalidArgs,
+            set_last_error(&deskpilot_core::error::AdapterError::new(
+                deskpilot_core::error::ErrorCode::InvalidArgs,
                 "adapter is null",
             ));
             return AdResult::ErrInvalidArgs;
@@ -59,8 +59,8 @@ pub unsafe extern "C" fn ad_free_handle(
             Err(e) => {
                 if matches!(
                     e.code,
-                    agent_desktop_core::error::ErrorCode::ActionNotSupported
-                        | agent_desktop_core::error::ErrorCode::PlatformNotSupported
+                    deskpilot_core::error::ErrorCode::ActionNotSupported
+                        | deskpilot_core::error::ErrorCode::PlatformNotSupported
                 ) {
                     return AdResult::Ok;
                 }

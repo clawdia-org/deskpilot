@@ -144,7 +144,7 @@ mod imp {
         let _ = crate::system::app_ops::ensure_app_focused(pid);
         crate::actions::dispatch::click_via_bounds(
             el,
-            agent_desktop_core::action::MouseButton::Left,
+            deskpilot_core::action::MouseButton::Left,
             1,
         )
         .is_ok()

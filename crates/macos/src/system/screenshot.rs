@@ -1,4 +1,4 @@
-use agent_desktop_core::{adapter::ImageBuffer, adapter::ImageFormat, error::AdapterError};
+use deskpilot_core::{adapter::ImageBuffer, adapter::ImageFormat, error::AdapterError};
 
 #[cfg(target_os = "macos")]
 mod imp {
@@ -48,7 +48,7 @@ mod imp {
     }
 
     fn temp_path() -> String {
-        format!("/tmp/agent-desktop-ss-{}.png", std::process::id())
+        format!("/tmp/deskpilot-ss-{}.png", std::process::id())
     }
 
     fn read_png(path: &str) -> Result<ImageBuffer, AdapterError> {

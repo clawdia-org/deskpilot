@@ -1,4 +1,4 @@
-use agent_desktop_core::{action::KeyCombo, error::AdapterError};
+use deskpilot_core::{action::KeyCombo, error::AdapterError};
 
 #[cfg(target_os = "macos")]
 mod imp {
@@ -108,7 +108,7 @@ mod imp {
 
     fn release_modifiers(
         el: accessibility_sys::AXUIElementRef,
-        modifiers: &[agent_desktop_core::action::Modifier],
+        modifiers: &[deskpilot_core::action::Modifier],
     ) {
         for m in modifiers.iter().rev() {
             let code = modifier_keycode(m);
@@ -116,8 +116,8 @@ mod imp {
         }
     }
 
-    fn modifier_keycode(m: &agent_desktop_core::action::Modifier) -> u16 {
-        use agent_desktop_core::action::Modifier;
+    fn modifier_keycode(m: &deskpilot_core::action::Modifier) -> u16 {
+        use deskpilot_core::action::Modifier;
         match m {
             Modifier::Cmd => 55,
             Modifier::Shift => 56,
@@ -274,7 +274,7 @@ mod imp {
             "f12" => 111,
             other => {
                 return Err(AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     format!("Unknown key: '{other}'"),
                 )
                 .with_suggestion("Valid keys: a-z, 0-9, return, escape, tab, space, delete, left, right, up, down, f1-f12"))

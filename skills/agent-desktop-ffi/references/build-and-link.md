@@ -3,16 +3,16 @@
 ## Building the cdylib
 
 ```sh
-cargo build --profile release-ffi -p agent-desktop-ffi
+cargo build --profile release-ffi -p deskpilot-ffi
 ```
 
 Output:
 
-- macOS: `target/release-ffi/libagent_desktop_ffi.dylib` (~470 KB)
-- Linux: `target/release-ffi/libagent_desktop_ffi.so`
-- Windows: `target/release-ffi/agent_desktop_ffi.dll`
+- macOS: `target/release-ffi/libdeskpilot_ffi.dylib` (~470 KB)
+- Linux: `target/release-ffi/libdeskpilot_ffi.so`
+- Windows: `target/release-ffi/deskpilot_ffi.dll`
 
-The generated header is at `crates/ffi/include/agent_desktop.h`.
+The generated header is at `crates/ffi/include/deskpilot.h`.
 CI validates that the committed header matches what `cargo build`
 regenerates — if you change a type in `crates/ffi/src/`, rebuild
 locally and commit the header.
@@ -21,7 +21,7 @@ locally and commit the header.
 
 ```c
 #include <stdio.h>
-#include "agent_desktop.h"
+#include "deskpilot.h"
 
 int main(void) {
     AdAdapter *adapter = ad_adapter_create();
@@ -59,11 +59,11 @@ Compile:
 
 ```sh
 clang -I./crates/ffi/include main.c \
-      -L./target/release-ffi -lagent_desktop_ffi \
+      -L./target/release-ffi -ldeskpilot_ffi \
       -o list_apps
 install_name_tool -change \
-    libagent_desktop_ffi.dylib \
-    @executable_path/target/release-ffi/libagent_desktop_ffi.dylib \
+    libdeskpilot_ffi.dylib \
+    @executable_path/target/release-ffi/libdeskpilot_ffi.dylib \
     list_apps
 ```
 
@@ -73,7 +73,7 @@ install_name_tool -change \
 import ctypes
 from ctypes import c_int32, c_char_p, POINTER, Structure, c_uint32
 
-lib = ctypes.CDLL("./target/release-ffi/libagent_desktop_ffi.dylib")
+lib = ctypes.CDLL("./target/release-ffi/libdeskpilot_ffi.dylib")
 
 # Opaque adapter handle
 class AdAdapter(ctypes.Structure):

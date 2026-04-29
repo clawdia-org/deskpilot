@@ -1,4 +1,4 @@
-use agent_desktop_core::node::Rect;
+use deskpilot_core::node::Rect;
 
 pub const ABSOLUTE_MAX_DEPTH: u8 = 50;
 

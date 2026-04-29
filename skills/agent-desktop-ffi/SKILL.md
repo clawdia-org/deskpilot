@@ -1,28 +1,28 @@
 ---
-name: agent-desktop-ffi
+name: deskpilot-ffi
 version: 0.1.11
 tags: ffi, c-bindings, cdylib, python, swift, node, go, rust-ffi
 requirements:
-  - agent-desktop-ffi
+  - deskpilot-ffi
 description: >
-  C-ABI bindings over agent-desktop's PlatformAdapter. Consumers
+  C-ABI bindings over deskpilot's PlatformAdapter. Consumers
   (Python ctypes, Swift, Node ffi-napi, Go cgo, C++, Ruby fiddle)
-  link libagent_desktop_ffi.{dylib,so,dll} and call `ad_*` functions
+  link libdeskpilot_ffi.{dylib,so,dll} and call `ad_*` functions
   directly instead of spawning the CLI binary per call.
 ---
 
-# agent-desktop-ffi
+# deskpilot-ffi
 
 Direct C-ABI access to every PlatformAdapter operation. Build the
 cdylib with the workspace's `release-ffi` profile:
 
 ```sh
-cargo build --profile release-ffi -p agent-desktop-ffi
+cargo build --profile release-ffi -p deskpilot-ffi
 ```
 
-The output is `target/release-ffi/libagent_desktop_ffi.dylib`
+The output is `target/release-ffi/libdeskpilot_ffi.dylib`
 (`.so` on Linux, `.dll` on Windows) plus a committed C header at
-`crates/ffi/include/agent_desktop.h`.
+`crates/ffi/include/deskpilot.h`.
 
 Four reference topics, loaded as needed:
 
@@ -68,7 +68,7 @@ Four reference topics, loaded as needed:
 
 - **ABI is unstable before 1.0.** The header lists the exact current
   shapes. Anything added or reordered in a later patch is a breaking
-  change; pin the version of libagent_desktop_ffi you link against.
+  change; pin the version of libdeskpilot_ffi you link against.
 
 - **`ad_get_tree` returns a raw adapter tree, not the CLI snapshot.**
   Ref IDs are always null, no skeleton/drill-down pipeline is wired

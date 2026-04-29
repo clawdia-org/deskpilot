@@ -6,7 +6,7 @@ mod cli_args_notifications;
 mod dispatch;
 mod dispatch_notifications;
 
-use agent_desktop_core::adapter::PlatformAdapter;
+use deskpilot_core::adapter::PlatformAdapter;
 use clap::{CommandFactory, Parser};
 use cli::{Cli, Commands};
 use std::io::{BufWriter, Write};
@@ -48,15 +48,15 @@ fn main() {
 
     match &cmd {
         Commands::Version(a) => {
-            let result = agent_desktop_core::commands::version::execute(
-                agent_desktop_core::commands::version::VersionArgs { json: a.json },
+            let result = deskpilot_core::commands::version::execute(
+                deskpilot_core::commands::version::VersionArgs { json: a.json },
             );
             finish(cmd_name, result);
             return;
         }
         Commands::Status => {
             let adapter = build_adapter();
-            let result = agent_desktop_core::commands::status::execute(&adapter);
+            let result = deskpilot_core::commands::status::execute(&adapter);
             finish(cmd_name, result);
             return;
         }
@@ -65,7 +65,7 @@ fn main() {
 
     let adapter = build_adapter();
 
-    if let agent_desktop_core::adapter::PermissionStatus::Denied { suggestion } =
+    if let deskpilot_core::adapter::PermissionStatus::Denied { suggestion } =
         adapter.check_permissions()
     {
         match &cmd {
@@ -91,7 +91,7 @@ fn main() {
     finish(cmd_name, result);
 }
 
-fn finish(cmd_name: &str, result: Result<serde_json::Value, agent_desktop_core::error::AppError>) {
+fn finish(cmd_name: &str, result: Result<serde_json::Value, deskpilot_core::error::AppError>) {
     match result {
         Ok(data) => {
             let response = serde_json::json!({
@@ -133,20 +133,20 @@ fn emit_json(value: &serde_json::Value) {
     let _ = writer.flush();
 }
 
-fn build_adapter() -> impl agent_desktop_core::adapter::PlatformAdapter {
+fn build_adapter() -> impl deskpilot_core::adapter::PlatformAdapter {
     #[cfg(target_os = "macos")]
     {
-        agent_desktop_macos::MacOSAdapter::new()
+        deskpilot_macos::MacOSAdapter::new()
     }
 
     #[cfg(target_os = "windows")]
     {
-        agent_desktop_windows::WindowsAdapter::new()
+        deskpilot_windows::WindowsAdapter::new()
     }
 
     #[cfg(target_os = "linux")]
     {
-        agent_desktop_linux::LinuxAdapter::new()
+        deskpilot_linux::LinuxAdapter::new()
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]

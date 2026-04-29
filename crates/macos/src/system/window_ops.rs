@@ -1,4 +1,4 @@
-use agent_desktop_core::{action::WindowOp, error::AdapterError, node::WindowInfo};
+use deskpilot_core::{action::WindowOp, error::AdapterError, node::WindowInfo};
 
 #[cfg(target_os = "macos")]
 mod imp {
@@ -7,7 +7,7 @@ mod imp {
         kAXErrorSuccess, kAXPositionAttribute, kAXSizeAttribute, kAXValueTypeCGPoint,
         kAXValueTypeCGSize, AXUIElementPerformAction, AXUIElementSetAttributeValue,
     };
-    use agent_desktop_core::error::ErrorCode;
+    use deskpilot_core::error::ErrorCode;
     use core_foundation::{base::TCFType, boolean::CFBoolean, string::CFString};
     use core_graphics::geometry::{CGPoint, CGSize};
     use std::ffi::c_void;

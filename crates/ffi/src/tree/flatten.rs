@@ -1,6 +1,6 @@
 use crate::convert::string::{opt_string_to_c, string_to_c_lossy};
 use crate::types::{AdNode, AdNodeTree, AdRect};
-use agent_desktop_core::node::AccessibilityNode;
+use deskpilot_core::node::AccessibilityNode;
 use std::collections::VecDeque;
 use std::os::raw::c_char;
 use std::ptr;

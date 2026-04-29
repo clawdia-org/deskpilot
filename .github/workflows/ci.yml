@@ -50,8 +50,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: |
-          OUTPUT=$(cargo tree -p agent-desktop-core 2>&1)
-          if echo "$OUTPUT" | grep -qE 'agent-desktop-(macos|windows|linux)'; then
+          OUTPUT=$(cargo tree -p deskpilot-core 2>&1)
+          if echo "$OUTPUT" | grep -qE 'deskpilot-(macos|windows|linux)'; then
             echo "ERROR: core crate depends on a platform crate!"
             echo "$OUTPUT"
             exit 1

@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     action::{Action, ActionResult, MouseButton, MouseEvent, MouseEventKind, Point},
     error::{AdapterError, ErrorCode},
 };
@@ -223,9 +223,9 @@ mod imp {
         crate::input::clipboard::set(text)?;
         std::thread::sleep(std::time::Duration::from_millis(50));
 
-        crate::input::keyboard::synthesize_key(&agent_desktop_core::action::KeyCombo {
+        crate::input::keyboard::synthesize_key(&deskpilot_core::action::KeyCombo {
             key: "v".into(),
-            modifiers: vec![agent_desktop_core::action::Modifier::Cmd],
+            modifiers: vec![deskpilot_core::action::Modifier::Cmd],
         })?;
         std::thread::sleep(std::time::Duration::from_millis(100));
 
@@ -238,7 +238,7 @@ mod imp {
     fn read_post_state(
         el: &AXElement,
         action: &Action,
-    ) -> Option<agent_desktop_core::action::ElementState> {
+    ) -> Option<deskpilot_core::action::ElementState> {
         let delay_ms = match action {
             Action::Click
             | Action::Toggle
@@ -262,7 +262,7 @@ mod imp {
         if !enabled {
             states.push("disabled".into());
         }
-        Some(agent_desktop_core::action::ElementState {
+        Some(deskpilot_core::action::ElementState {
             role,
             states,
             value,

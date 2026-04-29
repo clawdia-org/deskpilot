@@ -1,4 +1,4 @@
-use agent_desktop_core::{adapter::NativeHandle, error::AdapterError, refs::RefEntry};
+use deskpilot_core::{adapter::NativeHandle, error::AdapterError, refs::RefEntry};
 use rustc_hash::FxHashSet;
 
 use super::element::{
@@ -41,7 +41,7 @@ pub fn resolve_element_impl(entry: &RefEntry) -> Result<NativeHandle, AdapterErr
     }
     tracing::debug!("resolve: element not found");
     Err(AdapterError::new(
-        agent_desktop_core::error::ErrorCode::StaleRef,
+        deskpilot_core::error::ErrorCode::StaleRef,
         format!(
             "Element not found: role={}, name={:?}",
             entry.role,
@@ -72,7 +72,7 @@ pub fn find_element_recursive(
 
     if std::time::Instant::now() > deadline {
         return Err(AdapterError::new(
-            agent_desktop_core::error::ErrorCode::StaleRef,
+            deskpilot_core::error::ErrorCode::StaleRef,
             "Element resolution timed out",
         )
         .with_suggestion("Run 'snapshot' to refresh, then retry with the updated ref."));
