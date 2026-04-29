@@ -1,7 +1,7 @@
 /// Direct probe of macOS AX APIs — no abstraction.
 /// Reveals exactly what the raw APIs return and validates click behavior.
 ///
-///   cargo run -p agent-desktop-macos --example ax_probe -- <AppName>
+///   cargo run -p deskpilot-macos --example ax_probe -- <AppName>
 use std::ffi::c_void;
 
 #[cfg(target_os = "macos")]

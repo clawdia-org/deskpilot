@@ -1,11 +1,11 @@
 ---
-name: agent-desktop
+name: deskpilot
 version: 0.1.8
 tags: desktop-automation, accessibility, ai-agent, gui-automation, cli
 requirements:
-  - agent-desktop
+  - deskpilot
 description: >
-  Desktop automation via native OS accessibility trees using the agent-desktop CLI.
+  Desktop automation via native OS accessibility trees using the deskpilot CLI.
   Use when an AI agent needs to observe, interact with, or automate desktop applications
   (click buttons, fill forms, navigate menus, read UI state, toggle checkboxes, scroll,
   drag, type text, take screenshots, manage windows, use clipboard, manage notifications).
@@ -13,22 +13,22 @@ description: >
   notifications (macOS), clipboard, and wait.
   Triggers on: "click button", "fill form", "open app", "read UI", "automate desktop",
   "accessibility tree", "snapshot app", "type into field", "navigate menu", "toggle checkbox",
-  "take screenshot", "desktop automation", "agent-desktop", or any desktop GUI interaction task.
+  "take screenshot", "desktop automation", "deskpilot", or any desktop GUI interaction task.
   Supports macOS (Phase 1), with Windows and Linux planned.
 ---
 
-# agent-desktop
+# deskpilot
 
 CLI tool enabling AI agents to observe and control desktop applications via native OS accessibility trees.
 
-**Core principle:** agent-desktop is NOT an AI agent. It is a tool that AI agents invoke. It outputs structured JSON with ref-based element identifiers. The observation-action loop lives in the calling agent.
+**Core principle:** deskpilot is NOT an AI agent. It is a tool that AI agents invoke. It outputs structured JSON with ref-based element identifiers. The observation-action loop lives in the calling agent.
 
 ## Installation
 
 ```bash
-npm install -g agent-desktop
+npm install -g deskpilot
 # or
-bun install -g --trust agent-desktop
+bun install -g --trust deskpilot
 ```
 
 Requires macOS 12+ with Accessibility permission granted to your terminal.
@@ -50,17 +50,17 @@ Detailed documentation is split into focused reference files. Read them as neede
 Use **progressive skeleton traversal** as the default approach. It reduces token consumption 78-96% for dense apps by exploring the UI in two phases: a shallow skeleton overview, then targeted drill-downs into regions of interest.
 
 ```
-1. SKELETON → agent-desktop snapshot --skeleton --app "App" -i --compact
+1. SKELETON → deskpilot snapshot --skeleton --app "App" -i --compact
    Parse the overview. Identify the region containing your target.
    Regions show children_count (e.g., "Sidebar" with children_count: 42).
    Named containers at truncation boundary have refs for drill-down.
 
-2. DRILL    → agent-desktop snapshot --root @e3 -i --compact
+2. DRILL    → deskpilot snapshot --root @e3 -i --compact
    Expand the target region. Now you see its interactive elements.
 
-3. ACT      → agent-desktop click @e12  (or type, select, toggle...)
+3. ACT      → deskpilot click @e12  (or type, select, toggle...)
 
-4. VERIFY   → agent-desktop snapshot --root @e3 -i --compact
+4. VERIFY   → deskpilot snapshot --root @e3 -i --compact
    Re-drill the same region to confirm the state change.
    Scoped invalidation: only @e3's subtree refs are replaced.
 
@@ -114,103 +114,103 @@ Exit codes: `0` success, `1` structured error, `2` argument error.
 
 ### Observation
 ```
-agent-desktop snapshot --skeleton --app "App" -i --compact  # Skeleton overview (preferred)
-agent-desktop snapshot --root @e3 -i --compact              # Drill into region
-agent-desktop snapshot --app "App" -i                       # Full tree (simple apps)
-agent-desktop snapshot --app "App" --surface menu -i        # Surface snapshot
-agent-desktop screenshot --app "App" out.png                # PNG screenshot
-agent-desktop find --app "App" --role button                # Search elements
-agent-desktop get @e1 --property text                       # Read element property
-agent-desktop is @e1 --property enabled                     # Check element state
-agent-desktop list-surfaces --app "App"                     # Available surfaces
+deskpilot snapshot --skeleton --app "App" -i --compact  # Skeleton overview (preferred)
+deskpilot snapshot --root @e3 -i --compact              # Drill into region
+deskpilot snapshot --app "App" -i                       # Full tree (simple apps)
+deskpilot snapshot --app "App" --surface menu -i        # Surface snapshot
+deskpilot screenshot --app "App" out.png                # PNG screenshot
+deskpilot find --app "App" --role button                # Search elements
+deskpilot get @e1 --property text                       # Read element property
+deskpilot is @e1 --property enabled                     # Check element state
+deskpilot list-surfaces --app "App"                     # Available surfaces
 ```
 
 ### Interaction
 ```
-agent-desktop click @e5                         # Click element
-agent-desktop double-click @e3                  # Double-click
-agent-desktop triple-click @e2                  # Triple-click (select line)
-agent-desktop right-click @e5                   # Right-click (context menu)
-agent-desktop type @e2 "hello"                  # Type text into element
-agent-desktop set-value @e2 "new value"         # Set value directly
-agent-desktop clear @e2                         # Clear element value
-agent-desktop focus @e2                         # Set keyboard focus
-agent-desktop select @e4 "Option B"             # Select dropdown option
-agent-desktop toggle @e6                        # Toggle checkbox/switch
-agent-desktop check @e6                         # Idempotent check
-agent-desktop uncheck @e6                       # Idempotent uncheck
-agent-desktop expand @e7                        # Expand disclosure
-agent-desktop collapse @e7                      # Collapse disclosure
-agent-desktop scroll @e1 --direction down       # Scroll element
-agent-desktop scroll-to @e8                     # Scroll into view
+deskpilot click @e5                         # Click element
+deskpilot double-click @e3                  # Double-click
+deskpilot triple-click @e2                  # Triple-click (select line)
+deskpilot right-click @e5                   # Right-click (context menu)
+deskpilot type @e2 "hello"                  # Type text into element
+deskpilot set-value @e2 "new value"         # Set value directly
+deskpilot clear @e2                         # Clear element value
+deskpilot focus @e2                         # Set keyboard focus
+deskpilot select @e4 "Option B"             # Select dropdown option
+deskpilot toggle @e6                        # Toggle checkbox/switch
+deskpilot check @e6                         # Idempotent check
+deskpilot uncheck @e6                       # Idempotent uncheck
+deskpilot expand @e7                        # Expand disclosure
+deskpilot collapse @e7                      # Collapse disclosure
+deskpilot scroll @e1 --direction down       # Scroll element
+deskpilot scroll-to @e8                     # Scroll into view
 ```
 
 ### Keyboard & Mouse
 ```
-agent-desktop press cmd+c                       # Key combo
-agent-desktop press return --app "App"          # Targeted key press
-agent-desktop key-down shift                    # Hold key
-agent-desktop key-up shift                      # Release key
-agent-desktop hover @e5                         # Cursor to element
-agent-desktop hover --xy 500,300                # Cursor to coordinates
-agent-desktop drag --from @e1 --to @e5          # Drag between elements
-agent-desktop mouse-click --xy 500,300          # Click at coordinates
-agent-desktop mouse-move --xy 100,200           # Move cursor
-agent-desktop mouse-down --xy 100,200           # Press mouse button
-agent-desktop mouse-up --xy 300,400             # Release mouse button
+deskpilot press cmd+c                       # Key combo
+deskpilot press return --app "App"          # Targeted key press
+deskpilot key-down shift                    # Hold key
+deskpilot key-up shift                      # Release key
+deskpilot hover @e5                         # Cursor to element
+deskpilot hover --xy 500,300                # Cursor to coordinates
+deskpilot drag --from @e1 --to @e5          # Drag between elements
+deskpilot mouse-click --xy 500,300          # Click at coordinates
+deskpilot mouse-move --xy 100,200           # Move cursor
+deskpilot mouse-down --xy 100,200           # Press mouse button
+deskpilot mouse-up --xy 300,400             # Release mouse button
 ```
 
 ### App & Window
 ```
-agent-desktop launch "System Settings"          # Launch and wait
-agent-desktop close-app "TextEdit"              # Quit gracefully
-agent-desktop close-app "TextEdit" --force      # Force kill
-agent-desktop list-windows --app "Finder"       # List windows
-agent-desktop list-apps                         # List running GUI apps
-agent-desktop focus-window --app "Finder"       # Bring to front
-agent-desktop resize-window --app "App" --width 800 --height 600
-agent-desktop move-window --app "App" --x 0 --y 0
-agent-desktop minimize --app "App"
-agent-desktop maximize --app "App"
-agent-desktop restore --app "App"
+deskpilot launch "System Settings"          # Launch and wait
+deskpilot close-app "TextEdit"              # Quit gracefully
+deskpilot close-app "TextEdit" --force      # Force kill
+deskpilot list-windows --app "Finder"       # List windows
+deskpilot list-apps                         # List running GUI apps
+deskpilot focus-window --app "Finder"       # Bring to front
+deskpilot resize-window --app "App" --width 800 --height 600
+deskpilot move-window --app "App" --x 0 --y 0
+deskpilot minimize --app "App"
+deskpilot maximize --app "App"
+deskpilot restore --app "App"
 ```
 
 ### Notifications
 ```
-agent-desktop list-notifications                # List all notifications
-agent-desktop list-notifications --app "Slack"  # Filter by app
-agent-desktop list-notifications --text "deploy" --limit 5  # Filter by text
-agent-desktop dismiss-notification 1            # Dismiss by index
-agent-desktop dismiss-all-notifications         # Dismiss all
-agent-desktop dismiss-all-notifications --app "Slack"  # Dismiss all from app
-agent-desktop notification-action 1 "Reply" --expected-app Slack   # Click action (with NC reorder guard)
+deskpilot list-notifications                # List all notifications
+deskpilot list-notifications --app "Slack"  # Filter by app
+deskpilot list-notifications --text "deploy" --limit 5  # Filter by text
+deskpilot dismiss-notification 1            # Dismiss by index
+deskpilot dismiss-all-notifications         # Dismiss all
+deskpilot dismiss-all-notifications --app "Slack"  # Dismiss all from app
+deskpilot notification-action 1 "Reply" --expected-app Slack   # Click action (with NC reorder guard)
 ```
 
 ### Clipboard
 ```
-agent-desktop clipboard-get                     # Read clipboard
-agent-desktop clipboard-set "text"              # Write to clipboard
-agent-desktop clipboard-clear                   # Clear clipboard
+deskpilot clipboard-get                     # Read clipboard
+deskpilot clipboard-set "text"              # Write to clipboard
+deskpilot clipboard-clear                   # Clear clipboard
 ```
 
 ### Wait
 ```
-agent-desktop wait 1000                         # Pause 1 second
-agent-desktop wait --element @e5 --timeout 5000 # Wait for element
-agent-desktop wait --window "Title"             # Wait for window
-agent-desktop wait --text "Done" --app "App"    # Wait for text
-agent-desktop wait --menu --app "App"           # Wait for context menu
-agent-desktop wait --menu-closed --app "App"    # Wait for menu dismissal
-agent-desktop wait --notification --app "App"   # Wait for new notification
+deskpilot wait 1000                         # Pause 1 second
+deskpilot wait --element @e5 --timeout 5000 # Wait for element
+deskpilot wait --window "Title"             # Wait for window
+deskpilot wait --text "Done" --app "App"    # Wait for text
+deskpilot wait --menu --app "App"           # Wait for context menu
+deskpilot wait --menu-closed --app "App"    # Wait for menu dismissal
+deskpilot wait --notification --app "App"   # Wait for new notification
 ```
 
 ### System
 ```
-agent-desktop status                            # Health check
-agent-desktop permissions                       # Check permission
-agent-desktop permissions --request             # Trigger permission dialog
-agent-desktop version --json                    # Version info
-agent-desktop batch '[...]' --stop-on-error     # Batch commands
+deskpilot status                            # Health check
+deskpilot permissions                       # Check permission
+deskpilot permissions --request             # Trigger permission dialog
+deskpilot version --json                    # Version info
+deskpilot batch '[...]' --stop-on-error     # Batch commands
 ```
 
 ## Key Principles for Agents

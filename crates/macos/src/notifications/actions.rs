@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     action::ActionResult,
     error::{AdapterError, ErrorCode},
     notification::{NotificationFilter, NotificationIdentity, NotificationInfo},
@@ -197,7 +197,7 @@ fn action_impl(
 #[cfg(target_os = "macos")]
 fn hover_over(el: &crate::tree::AXElement) -> Result<(), AdapterError> {
     use crate::tree::read_bounds;
-    use agent_desktop_core::action::{MouseButton, MouseEvent, MouseEventKind, Point};
+    use deskpilot_core::action::{MouseButton, MouseEvent, MouseEventKind, Point};
 
     let bounds = read_bounds(el)
         .ok_or_else(|| AdapterError::internal("Cannot read notification bounds for hover"))?;

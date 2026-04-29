@@ -4,7 +4,7 @@ use crate::error::{set_last_error, AdResult};
 use crate::ffi_try::{trap_panic, trap_panic_void};
 use crate::types::{AdWindowInfo, AdWindowList};
 use crate::AdAdapter;
-use agent_desktop_core::adapter::WindowFilter;
+use deskpilot_core::adapter::WindowFilter;
 use std::os::raw::c_char;
 use std::ptr;
 

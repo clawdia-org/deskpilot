@@ -1,4 +1,4 @@
-use agent_desktop_core::error::{AdapterError, ErrorCode};
+use deskpilot_core::error::{AdapterError, ErrorCode};
 use std::cell::RefCell;
 use std::ffi::{c_char, CStr, CString};
 

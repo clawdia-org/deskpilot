@@ -8,9 +8,9 @@ Run the following on macOS with Accessibility permissions to capture real snapsh
 
 ```bash
 cargo build --release
-./target/release/agent-desktop snapshot --app Finder > tests/fixtures/finder-snapshot.json
-./target/release/agent-desktop snapshot --app TextEdit > tests/fixtures/textedit-snapshot.json
-./target/release/agent-desktop list-apps > tests/fixtures/list-apps.json
+./target/release/deskpilot snapshot --app Finder > tests/fixtures/finder-snapshot.json
+./target/release/deskpilot snapshot --app TextEdit > tests/fixtures/textedit-snapshot.json
+./target/release/deskpilot list-apps > tests/fixtures/list-apps.json
 ```
 
 ## Usage in Tests

@@ -8,13 +8,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 cargo build                                    # Debug build
 cargo build --release                          # Release build (<15MB target)
 cargo test --lib --workspace                   # Run all unit tests
-cargo test --lib -p agent-desktop-core         # Test core crate only
-cargo test --lib -p agent-desktop-macos        # Test macOS crate only
+cargo test --lib -p deskpilot-core         # Test core crate only
+cargo test --lib -p deskpilot-macos        # Test macOS crate only
 cargo test test_name                           # Run a single test by name
 cargo clippy --all-targets -- -D warnings      # Lint (must pass, zero warnings)
 cargo fmt --all -- --check                     # Format check
 cargo fmt --all                                # Auto-format
-cargo tree -p agent-desktop-core               # Verify no platform crate leaks (CI enforces)
+cargo tree -p deskpilot-core               # Verify no platform crate leaks (CI enforces)
 ```
 
 Run the binary: `./target/release/deskpilot snapshot --app Finder -i`
@@ -54,28 +54,28 @@ Cross-platform Rust CLI + MCP server enabling AI agents to observe and control d
 
 ## Core Principle
 
-agent-desktop is NOT an AI agent. It is a tool that AI agents invoke. It outputs structured JSON with ref-based element identifiers. The observation-action loop lives in the calling agent.
+deskpilot is NOT an AI agent. It is a tool that AI agents invoke. It outputs structured JSON with ref-based element identifiers. The observation-action loop lives in the calling agent.
 
 ## Architecture
 
 ### Workspace Layout
 
 ```
-agent-desktop/
+deskpilot/
 ├── Cargo.toml              # workspace: members, shared deps
 ├── rust-toolchain.toml     # pinned Rust version
 ├── clippy.toml             # project-wide lint config
 ├── crates/
-│   ├── core/               # agent-desktop-core (platform-agnostic)
+│   ├── core/               # deskpilot-core (platform-agnostic)
 │   │   └── src/
 │   │       ├── ref_alloc.rs      # Shared ref helpers (INTERACTIVE_ROLES, is_collapsible)
 │   │       ├── snapshot_ref.rs   # Ref-rooted drill-down (run_from_ref)
 │   │       └── commands/         # one file per command
-│   ├── macos/              # agent-desktop-macos (Phase 1)
-│   ├── windows/            # agent-desktop-windows (stub → Phase 2)
-│   ├── linux/              # agent-desktop-linux (stub → Phase 2)
-│   └── ffi/                # agent-desktop-ffi (cdylib + cbindgen C ABI)
-├── src/                    # agent-desktop binary (entry point)
+│   ├── macos/              # deskpilot-macos (Phase 1)
+│   ├── windows/            # deskpilot-windows (stub → Phase 2)
+│   ├── linux/              # deskpilot-linux (stub → Phase 2)
+│   └── ffi/                # deskpilot-ffi (cdylib + cbindgen C ABI)
+├── src/                    # deskpilot binary (entry point)
 │   ├── main.rs             # entry point, permission check, JSON envelope
 │   ├── cli.rs              # clap derive enum (Commands)
 │   ├── cli_args.rs         # all command argument structs
@@ -90,28 +90,28 @@ agent-desktop/
 
 ### Dependency Inversion (Non-Negotiable)
 
-- `agent-desktop-core` defines the `PlatformAdapter` trait and all shared types
+- `deskpilot-core` defines the `PlatformAdapter` trait and all shared types
 - Platform crates (`macos`, `windows`, `linux`) implement the trait
 - **Core NEVER imports platform crates.** Platform crates NEVER import each other.
 - Two legitimate wiring points bring platform → core together:
   1. The binary crate (`src/`) — CLI consumers
   2. The FFI crate (`crates/ffi/`) — cdylib consumers (Python, Swift, Go, Node, C++)
-- CI enforces core isolation: `cargo tree -p agent-desktop-core` must contain zero platform crate names
+- CI enforces core isolation: `cargo tree -p deskpilot-core` must contain zero platform crate names
 
 ### Platform Selection
 
-Compile-time via `#[cfg(target_os)]` in `build_adapter()`. Agents never specify platform — `agent-desktop snapshot -i` works identically on macOS, Windows, and Linux.
+Compile-time via `#[cfg(target_os)]` in `build_adapter()`. Agents never specify platform — `deskpilot snapshot -i` works identically on macOS, Windows, and Linux.
 
 ```rust
 fn build_adapter() -> impl PlatformAdapter {
     #[cfg(target_os = "macos")]
-    { agent_desktop_macos::MacOSAdapter::new() }
+    { deskpilot_macos::MacOSAdapter::new() }
 
     #[cfg(target_os = "windows")]
-    { agent_desktop_windows::WindowsAdapter::new() }
+    { deskpilot_windows::WindowsAdapter::new() }
 
     #[cfg(target_os = "linux")]
-    { agent_desktop_linux::LinuxAdapter::new() }
+    { deskpilot_linux::LinuxAdapter::new() }
 }
 ```
 
@@ -121,13 +121,13 @@ Binary crate `Cargo.toml` uses platform-specific deps, NOT unconditional deps wi
 
 ```toml
 [target.'cfg(target_os = "macos")'.dependencies]
-agent-desktop-macos = { path = "crates/macos" }
+deskpilot-macos = { path = "crates/macos" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-agent-desktop-windows = { path = "crates/windows" }
+deskpilot-windows = { path = "crates/windows" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-agent-desktop-linux = { path = "crates/linux" }
+deskpilot-linux = { path = "crates/linux" }
 ```
 
 ### Command Dispatch
@@ -190,7 +190,7 @@ PLATFORM_NOT_SUPPORTED, TIMEOUT, INVALID_ARGS, INTERNAL
 
 | Element | Convention | Example |
 |---------|-----------|---------|
-| Crate names | `agent-desktop-{name}` | `agent-desktop-core`, `agent-desktop-macos` |
+| Crate names | `deskpilot-{name}` | `deskpilot-core`, `deskpilot-macos` |
 | Module files | `snake_case`, singular | `snapshot.rs`, `list_windows.rs` |
 | Structs | PascalCase, descriptive noun | `SnapshotEngine`, `RefAllocator` |
 | Traits | PascalCase, adjective/capability | `PlatformAdapter`, `Executable` |
@@ -300,7 +300,7 @@ Error responses:
 - Only interactive roles receive refs: `button`, `textfield`, `checkbox`, `link`, `menuitem`, `tab`, `slider`, `combobox`, `treeitem`, `cell`
 - Static text, groups, containers do NOT get refs (they remain in tree for context)
 - Refs are deterministic within a snapshot but NOT stable across snapshots if UI changed
-- RefMap stored at `~/.agent-desktop/last_refmap.json` with `0o600` permissions, directory at `0o700`
+- RefMap stored at `~/.deskpilot/last_refmap.json` with `0o600` permissions, directory at `0o700`
 - Each snapshot REPLACES the refmap file entirely (atomic write via temp + rename)
 - Action commands use optimistic re-identification: `(pid, role, name, bounds_hash)`. Return `STALE_REF` on mismatch.
 - Progressive traversal: `--skeleton` clamps depth to 3, annotates truncated containers with `children_count`. Named/described containers at boundary receive refs as drill-down targets
@@ -424,7 +424,7 @@ Target binary size: <15MB per platform.
 ## CI Requirements
 
 - GitHub Actions macOS runner executes full test suite on every PR
-- `cargo tree -p agent-desktop-core` must not contain platform crate names
+- `cargo tree -p deskpilot-core` must not contain platform crate names
 - `cargo clippy --all-targets -- -D warnings`
 - `cargo test --workspace`
 - Binary size check: fail if release binary exceeds 15MB
@@ -457,6 +457,6 @@ Target binary size: <15MB per platform.
 
 ## Reference Documents
 
-- PRD v2.0: `docs/agent_desktop_prd_v2.pdf`
+- PRD v2.0: `docs/deskpilot_prd_v2.pdf`
 - Architecture Brainstorm: `docs/brainstorms/2026-02-19-architecture-validation-brainstorm.md`
-- Phase 1 Plan: `docs/plans/2026-02-19-feat-agent-desktop-phase1-foundation-plan.md`
+- Phase 1 Plan: `docs/plans/2026-02-19-feat-deskpilot-phase1-foundation-plan.md`

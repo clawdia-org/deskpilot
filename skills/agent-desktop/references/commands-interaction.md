@@ -8,25 +8,25 @@ All click commands use a smart activation chain (AX-first) that tries accessibil
 
 ### click
 ```bash
-agent-desktop click @e5
+deskpilot click @e5
 ```
 Primary activation. Tries AXPress > AXConfirm > AXOpen > AXPick > child activation > focus+activate > coordinate click.
 
 ### double-click
 ```bash
-agent-desktop double-click @e3
+deskpilot double-click @e3
 ```
 Tries AXOpen first, then two smart activations with 50ms gap, then CGEvent double-click.
 
 ### triple-click
 ```bash
-agent-desktop triple-click @e2
+deskpilot triple-click @e2
 ```
 Three smart activations with 30ms gaps, then CGEvent triple-click. Useful for select-all in text fields.
 
 ### right-click
 ```bash
-agent-desktop right-click @e5
+deskpilot right-click @e5
 ```
 Opens context menu. Tries AXShowMenu > focus+AXShowMenu > parent/child AXShowMenu > coordinate right-click. Use `wait --menu` after to capture the menu, then `snapshot --surface menu` to read it.
 
@@ -34,26 +34,26 @@ Opens context menu. Tries AXShowMenu > focus+AXShowMenu > parent/child AXShowMen
 
 ### type
 ```bash
-agent-desktop type @e2 "hello@example.com"
-agent-desktop type @e2 "multi line\ntext"
+deskpilot type @e2 "hello@example.com"
+deskpilot type @e2 "multi line\ntext"
 ```
 Focuses the element then types each character via keyboard synthesis. Handles special characters.
 
 ### set-value
 ```bash
-agent-desktop set-value @e2 "new value"
+deskpilot set-value @e2 "new value"
 ```
 Sets the value directly via the AX value attribute. Faster than `type` but may not trigger all UI callbacks. Use for text fields, text areas, and sliders.
 
 ### clear
 ```bash
-agent-desktop clear @e2
+deskpilot clear @e2
 ```
 Clears the element's value to an empty string. Equivalent to `set-value @e2 ""`.
 
 ### focus
 ```bash
-agent-desktop focus @e2
+deskpilot focus @e2
 ```
 Sets keyboard focus on the element without clicking it.
 
@@ -61,25 +61,25 @@ Sets keyboard focus on the element without clicking it.
 
 ### select
 ```bash
-agent-desktop select @e4 "Option B"
+deskpilot select @e4 "Option B"
 ```
 Selects an option in a list, dropdown, or combobox by its display text.
 
 ### toggle
 ```bash
-agent-desktop toggle @e6
+deskpilot toggle @e6
 ```
 Toggles a checkbox or switch to the opposite state.
 
 ### check
 ```bash
-agent-desktop check @e6
+deskpilot check @e6
 ```
 Sets a checkbox or switch to the checked/on state. Idempotent — does nothing if already checked.
 
 ### uncheck
 ```bash
-agent-desktop uncheck @e6
+deskpilot uncheck @e6
 ```
 Sets a checkbox or switch to the unchecked/off state. Idempotent.
 
@@ -87,13 +87,13 @@ Sets a checkbox or switch to the unchecked/off state. Idempotent.
 
 ### expand
 ```bash
-agent-desktop expand @e7
+deskpilot expand @e7
 ```
 Expands a disclosure triangle, tree item, or accordion.
 
 ### collapse
 ```bash
-agent-desktop collapse @e7
+deskpilot collapse @e7
 ```
 Collapses an expanded disclosure/tree item.
 
@@ -101,10 +101,10 @@ Collapses an expanded disclosure/tree item.
 
 ### scroll
 ```bash
-agent-desktop scroll @e1 --direction down --amount 3
-agent-desktop scroll @e1 --direction up --amount 5
-agent-desktop scroll @e1 --direction left --amount 2
-agent-desktop scroll @e1 --direction right --amount 2
+deskpilot scroll @e1 --direction down --amount 3
+deskpilot scroll @e1 --direction up --amount 5
+deskpilot scroll @e1 --direction left --amount 2
+deskpilot scroll @e1 --direction right --amount 2
 ```
 
 | Flag | Default | Description |
@@ -114,7 +114,7 @@ agent-desktop scroll @e1 --direction right --amount 2
 
 ### scroll-to
 ```bash
-agent-desktop scroll-to @e8
+deskpilot scroll-to @e8
 ```
 Scrolls the element into the visible area of its scroll container.
 
@@ -122,13 +122,13 @@ Scrolls the element into the visible area of its scroll container.
 
 ### press
 ```bash
-agent-desktop press return
-agent-desktop press escape
-agent-desktop press cmd+c
-agent-desktop press cmd+shift+z
-agent-desktop press shift+tab
-agent-desktop press f5
-agent-desktop press cmd+a --app "TextEdit"
+deskpilot press return
+deskpilot press escape
+deskpilot press cmd+c
+deskpilot press cmd+shift+z
+deskpilot press shift+tab
+deskpilot press f5
+deskpilot press cmd+a --app "TextEdit"
 ```
 
 | Flag | Description |
@@ -140,13 +140,13 @@ agent-desktop press cmd+a --app "TextEdit"
 
 ### key-down
 ```bash
-agent-desktop key-down shift
+deskpilot key-down shift
 ```
 Holds a key or modifier down. Must be paired with `key-up`.
 
 ### key-up
 ```bash
-agent-desktop key-up shift
+deskpilot key-up shift
 ```
 Releases a held key or modifier.
 
@@ -154,17 +154,17 @@ Releases a held key or modifier.
 
 ### hover
 ```bash
-agent-desktop hover @e5
-agent-desktop hover --xy 500,300
-agent-desktop hover @e5 --duration 2000
+deskpilot hover @e5
+deskpilot hover --xy 500,300
+deskpilot hover @e5 --duration 2000
 ```
 Moves cursor to element center or absolute coordinates. Optional `--duration` holds position for N ms.
 
 ### drag
 ```bash
-agent-desktop drag --from @e1 --to @e5
-agent-desktop drag --from-xy 100,200 --to-xy 400,500
-agent-desktop drag --from @e1 --to-xy 400,500 --duration 500
+deskpilot drag --from @e1 --to @e5
+deskpilot drag --from-xy 100,200 --to-xy 400,500
+deskpilot drag --from @e1 --to-xy 400,500 --duration 500
 ```
 
 | Flag | Description |
@@ -179,15 +179,15 @@ Can mix ref and coordinate sources (e.g., `--from @e1 --to-xy 400,500`).
 
 ### mouse-move
 ```bash
-agent-desktop mouse-move --xy 500,300
+deskpilot mouse-move --xy 500,300
 ```
 Moves cursor to absolute screen coordinates.
 
 ### mouse-click
 ```bash
-agent-desktop mouse-click --xy 500,300
-agent-desktop mouse-click --xy 500,300 --button right
-agent-desktop mouse-click --xy 500,300 --count 2
+deskpilot mouse-click --xy 500,300
+deskpilot mouse-click --xy 500,300 --button right
+deskpilot mouse-click --xy 500,300 --count 2
 ```
 
 | Flag | Default | Description |
@@ -198,8 +198,8 @@ agent-desktop mouse-click --xy 500,300 --count 2
 
 ### mouse-down / mouse-up
 ```bash
-agent-desktop mouse-down --xy 100,200
-agent-desktop mouse-up --xy 300,400
+deskpilot mouse-down --xy 100,200
+deskpilot mouse-up --xy 300,400
 ```
 Low-level press/release for custom drag or hold interactions.
 

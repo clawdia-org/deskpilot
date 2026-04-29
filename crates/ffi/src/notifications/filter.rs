@@ -1,7 +1,7 @@
 use crate::convert::string::try_c_to_string;
 use crate::types::AdNotificationFilter;
-use agent_desktop_core::error::{AdapterError, ErrorCode};
-use agent_desktop_core::notification::NotificationFilter;
+use deskpilot_core::error::{AdapterError, ErrorCode};
+use deskpilot_core::notification::NotificationFilter;
 
 /// Converts a C `AdNotificationFilter` into the core filter type.
 ///

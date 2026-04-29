@@ -1,4 +1,4 @@
-use agent_desktop_core::error::AdapterError;
+use deskpilot_core::error::AdapterError;
 
 #[cfg(target_os = "macos")]
 mod imp {

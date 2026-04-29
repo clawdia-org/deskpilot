@@ -2,7 +2,7 @@ use crate::error::{self, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::AdDragParams;
 use crate::AdAdapter;
-use agent_desktop_core::action::{DragParams as CoreDragParams, Point as CorePoint};
+use deskpilot_core::action::{DragParams as CoreDragParams, Point as CorePoint};
 
 /// Synthesizes a mouse drag from `params.from` to `params.to`. When
 /// `params.duration_ms` is zero the drag is instantaneous; a non-zero

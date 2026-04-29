@@ -1,5 +1,5 @@
 //! Deep probe of AXOutline sidebar rows and AXBrowser columns in Finder.
-//! Run: cargo run -p agent-desktop-macos --bin axprobe2
+//! Run: cargo run -p deskpilot-macos --bin axprobe2
 
 fn main() {
     #[cfg(target_os = "macos")]

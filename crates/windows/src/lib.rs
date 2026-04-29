@@ -1,4 +1,4 @@
-use agent_desktop_core::adapter::PlatformAdapter;
+use deskpilot_core::adapter::PlatformAdapter;
 
 pub struct WindowsAdapter;
 

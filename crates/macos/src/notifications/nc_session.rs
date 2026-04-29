@@ -1,4 +1,4 @@
-use agent_desktop_core::error::AdapterError;
+use deskpilot_core::error::AdapterError;
 
 pub(crate) struct NcSession {
     was_already_open: bool,
@@ -160,7 +160,7 @@ fn open_nc() -> Result<(), AdapterError> {
 #[cfg(target_os = "macos")]
 fn close_nc() -> Result<(), AdapterError> {
     use crate::input::keyboard;
-    use agent_desktop_core::action::KeyCombo;
+    use deskpilot_core::action::KeyCombo;
 
     let combo = KeyCombo {
         key: "escape".into(),

@@ -3,7 +3,7 @@ use crate::ffi_try::trap_panic;
 use crate::tree::flatten::flatten_tree;
 use crate::types::{AdNodeTree, AdSnapshotSurface, AdTreeOptions, AdWindowInfo};
 use crate::AdAdapter;
-use agent_desktop_core::adapter::SnapshotSurface;
+use deskpilot_core::adapter::SnapshotSurface;
 use std::ptr;
 
 fn core_surface(s: AdSnapshotSurface) -> SnapshotSurface {
@@ -90,14 +90,14 @@ pub unsafe extern "C" fn ad_get_tree(
         let surface = match AdSnapshotSurface::from_c(opts_ref.surface) {
             Some(s) => core_surface(s),
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "invalid snapshot surface discriminant",
                 ));
                 return AdResult::ErrInvalidArgs;
             }
         };
-        let core_opts = agent_desktop_core::adapter::TreeOptions {
+        let core_opts = deskpilot_core::adapter::TreeOptions {
             max_depth: opts_ref.max_depth,
             include_bounds: opts_ref.include_bounds,
             interactive_only: opts_ref.interactive_only,
@@ -115,7 +115,7 @@ pub unsafe extern "C" fn ad_get_tree(
                 // documents. ref_alloc::transform_tree is the ref-free
                 // variant of allocate_refs and matches its semantics for
                 // compact/interactive_only/include_bounds.
-                let shaped = agent_desktop_core::ref_alloc::transform_tree(
+                let shaped = deskpilot_core::ref_alloc::transform_tree(
                     tree,
                     core_opts.include_bounds,
                     core_opts.interactive_only,

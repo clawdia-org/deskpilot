@@ -1,4 +1,4 @@
-use agent_desktop_core::error::AdapterError;
+use deskpilot_core::error::AdapterError;
 
 #[cfg(target_os = "macos")]
 mod imp {
@@ -10,7 +10,7 @@ mod imp {
         discovery::ElementCaps,
     };
     use crate::tree::AXElement;
-    use agent_desktop_core::action::MouseButton;
+    use deskpilot_core::action::MouseButton;
 
     pub static CLICK_CHAIN: ChainDef = ChainDef {
         pre_scroll: true,

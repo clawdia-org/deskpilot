@@ -9,7 +9,7 @@ fn main() {
     // which breaks linking consumers (Swift/SPM, clang) once the dylib
     // is extracted from a release tarball. @rpath is the portable form.
     if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos") {
-        println!("cargo:rustc-cdylib-link-arg=-Wl,-install_name,@rpath/libagent_desktop_ffi.dylib");
+        println!("cargo:rustc-cdylib-link-arg=-Wl,-install_name,@rpath/libdeskpilot_ffi.dylib");
     }
 
     let crate_dir = match env::var("CARGO_MANIFEST_DIR") {
@@ -32,7 +32,7 @@ fn main() {
         Err(err) => panic!("cbindgen.toml parse error: {}", err),
     };
 
-    let out_path = Path::new(&out_dir).join("agent_desktop.h");
+    let out_path = Path::new(&out_dir).join("deskpilot.h");
 
     let bindings = match cbindgen::Builder::new()
         .with_crate(&crate_dir)

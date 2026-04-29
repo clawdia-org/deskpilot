@@ -1,6 +1,6 @@
-# agent-desktop — Phase Roadmap
+# deskpilot — Phase Roadmap
 
-> Source of truth for the phased delivery plan. Derived from [PRD v2.0](./agent_desktop_prd_v2.pdf) and the [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md).
+> Source of truth for the phased delivery plan. Derived from [PRD v2.0](./deskpilot_prd_v2.pdf) and the [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md).
 
 ---
 
@@ -41,7 +41,7 @@ Each phase is strictly additive. Core engine, CLI parser, JSON contract, error t
 
 ## Command Surface Architecture (DRY invariant)
 
-Every command in agent-desktop lives **exactly once** in `crates/core/src/commands/` and flows automatically to every transport (CLI, FFI, MCP) and every platform (macOS, Windows, Linux). No transport has per-platform code; no platform has per-transport code. The only place a new command branches is into the `PlatformAdapter` trait method calls it makes — and even those are written once per adapter in each platform crate, never per transport.
+Every command in deskpilot lives **exactly once** in `crates/core/src/commands/` and flows automatically to every transport (CLI, FFI, MCP) and every platform (macOS, Windows, Linux). No transport has per-platform code; no platform has per-transport code. The only place a new command branches is into the `PlatformAdapter` trait method calls it makes — and even those are written once per adapter in each platform crate, never per transport.
 
 ### Layering
 
@@ -182,30 +182,30 @@ Phase 1 is the load-bearing phase. It establishes every shared abstraction, ever
 ### Workspace Structure
 
 ```
-agent-desktop/
+deskpilot/
 ├── Cargo.toml              # workspace: members, shared deps
 ├── rust-toolchain.toml     # pinned Rust version
 ├── clippy.toml             # project-wide lint config
 ├── LICENSE                 # Apache-2.0 (shipped in every release tarball)
 ├── crates/
-│   ├── core/               # agent-desktop-core (platform-agnostic)
+│   ├── core/               # deskpilot-core (platform-agnostic)
 │   │   └── src/
 │   │       ├── lib.rs          # public re-exports only
 │   │       ├── node.rs         # AccessibilityNode, Rect, WindowInfo
 │   │       ├── adapter.rs      # PlatformAdapter trait
 │   │       ├── action.rs       # Action enum, ActionResult
-│   │       ├── refs.rs         # RefMap, RefEntry (persisted at ~/.agent-desktop/last_refmap.json)
+│   │       ├── refs.rs         # RefMap, RefEntry (persisted at ~/.deskpilot/last_refmap.json)
 │   │       ├── ref_alloc.rs    # INTERACTIVE_ROLES, allocate_refs, is_collapsible, transform_tree
 │   │       ├── snapshot_ref.rs # Ref-rooted drill-down (run_from_ref)
 │   │       ├── snapshot.rs     # SnapshotEngine (filter, allocate, serialize)
 │   │       ├── error.rs        # ErrorCode enum (12 variants), AdapterError, AppError
 │   │       ├── notification.rs # NotificationInfo, NotificationFilter, NotificationIdentity
 │   │       └── commands/       # one file per command (direct match, no Command trait)
-│   ├── macos/              # agent-desktop-macos (Phase 1, shipped)
-│   ├── windows/            # agent-desktop-windows (stub → Phase 2)
-│   ├── linux/              # agent-desktop-linux (stub → Phase 3)
-│   └── ffi/                # agent-desktop-ffi (cdylib, shipped v0.1.13; see Phase 1.5)
-├── src/                    # agent-desktop binary (entry point)
+│   ├── macos/              # deskpilot-macos (Phase 1, shipped)
+│   ├── windows/            # deskpilot-windows (stub → Phase 2)
+│   ├── linux/              # deskpilot-linux (stub → Phase 3)
+│   └── ffi/                # deskpilot-ffi (cdylib, shipped v0.1.13; see Phase 1.5)
+├── src/                    # deskpilot binary (entry point)
 │   ├── main.rs
 │   ├── cli.rs
 │   ├── cli_args.rs
@@ -361,7 +361,7 @@ crates/macos/src/
 
 ### Snapshot Engine and Ref Allocator
 
-Platform-agnostic, lives in `agent-desktop-core`:
+Platform-agnostic, lives in `deskpilot-core`:
 
 1. Raw tree: Call `adapter.get_tree(window, opts)`
 2. Filter: Remove invisible/offscreen. Remove empty groups with no interactive descendants. Prune beyond max_depth
@@ -369,7 +369,7 @@ Platform-agnostic, lives in `agent-desktop-core`:
 4. Serialize: Omit null fields. Omit empty arrays. Omit bounds in compact mode
 5. Estimate tokens: Optionally warn if exceeding threshold
 
-RefMap persisted at `~/.agent-desktop/last_refmap.json` with `0o600` permissions, directory at `0o700`. Each snapshot replaces the refmap file entirely (atomic write via temp + rename). Action commands use optimistic re-identification: `(pid, role, name, bounds_hash)`. Return `STALE_REF` on mismatch.
+RefMap persisted at `~/.deskpilot/last_refmap.json` with `0o600` permissions, directory at `0o700`. Each snapshot replaces the refmap file entirely (atomic write via temp + rename). Action commands use optimistic re-identification: `(pid, role, name, bounds_hash)`. Return `STALE_REF` on mismatch.
 
 **Progressive Skeleton Traversal:**
 - `--skeleton` flag clamps depth to `min(max_depth, 3)`, annotates truncated containers with `children_count` for agent discovery
@@ -524,13 +524,13 @@ Exit codes: `0` success, `1` structured error (JSON on stdout), `2` argument/par
 Current `.github/workflows/ci.yml` on every PR:
 - `fmt` job on `ubuntu-latest`: `cargo fmt --all -- --check`
 - `test` job on `macos-latest`:
-  - `cargo tree -p agent-desktop-core` must contain zero platform crate names (dependency isolation)
+  - `cargo tree -p deskpilot-core` must contain zero platform crate names (dependency isolation)
   - `cargo clippy --all-targets -- -D warnings`
   - `cargo test --lib --workspace`
-  - `cargo test -p agent-desktop-ffi --tests` (c_abi_harness + c_header_compile + error_lifetime integration suites)
+  - `cargo test -p deskpilot-ffi --tests` (c_abi_harness + c_header_compile + error_lifetime integration suites)
   - `cargo build --profile ci` (fast CLI binary) + 15 MB size check
-  - `cargo build --profile release-ffi -p agent-desktop-ffi` (the shipped cdylib profile)
-  - FFI header drift check — diffs `crates/ffi/include/agent_desktop.h` against the build-stamped `target/ffi-header-path.txt`
+  - `cargo build --profile release-ffi -p deskpilot-ffi` (the shipped cdylib profile)
+  - FFI header drift check — diffs `crates/ffi/include/deskpilot.h` against the build-stamped `target/ffi-header-path.txt`
 
 ### Dependencies
 
@@ -552,7 +552,7 @@ Current `.github/workflows/ci.yml` on every PR:
 - [x] README with installation (npm + source), core workflow, command reference, JSON output, ref system, platform support table
 - [x] PRD v2.0
 - [x] Architecture diagram
-- [x] Claude Code skills: `.claude/skills/agent-desktop/` (core, platform-agnostic) + `.claude/skills/agent-desktop-macos/` (macOS-specific)
+- [x] Claude Code skills: `.claude/skills/deskpilot/` (core, platform-agnostic) + `.claude/skills/deskpilot-macos/` (macOS-specific)
 - [x] Quick reference slash command: `.claude/commands/desktop.md`
 
 ---
@@ -561,20 +561,20 @@ Current `.github/workflows/ci.yml` on every PR:
 
 **Status: Completed — v0.1.13 (2026-04-17).**
 
-Phase 1.5 ships `crates/ffi/` as a first-class distribution target. The CLI stays the primary surface; the cdylib lets Python (ctypes), Swift, Node (ffi-napi), Go (cgo), Ruby (fiddle), and C consumers call `PlatformAdapter` directly without spawning `agent-desktop` per call.
+Phase 1.5 ships `crates/ffi/` as a first-class distribution target. The CLI stays the primary surface; the cdylib lets Python (ctypes), Swift, Node (ffi-napi), Go (cgo), Ruby (fiddle), and C consumers call `PlatformAdapter` directly without spawning `deskpilot` per call.
 
 ### Objectives
 
 | ID | Objective | Metric |
 |----|-----------|--------|
-| P1.5-O1 | Stable C-ABI surface | `crates/ffi/include/agent_desktop.h` drift-checked in CI via a deterministic `ffi-header-path.txt` stamp |
+| P1.5-O1 | Stable C-ABI surface | `crates/ffi/include/deskpilot.h` drift-checked in CI via a deterministic `ffi-header-path.txt` stamp |
 | P1.5-O2 | 5-platform release | Tarballs for aarch64/x86_64 apple-darwin, aarch64/x86_64 unknown-linux-gnu, and x86_64 pc-windows-msvc on every tagged release |
 | P1.5-O3 | Panic safety | Dedicated `release-ffi` profile overrides `panic = "abort"` → `"unwind"`; `catch_unwind` wraps every `extern "C"` boundary via `trap_panic` / `trap_panic_ptr` / `trap_panic_const_ptr` / `trap_panic_void` |
 | P1.5-O4 | Main-thread safety (macOS) | `require_main_thread()` guard in every build profile; worker-thread call returns `AD_RESULT_ERR_INTERNAL` with a static `'static CStr` message |
 | P1.5-O5 | Enum UB immunity | Public ABI struct fields store raw `i32`; every entry validates discriminants at the boundary via `try_from_c_enum!` |
 | P1.5-O6 | Out-param zeroing before any guard | Every fallible entry zeroes `*out` before pointer / UTF-8 / main-thread checks, so a worker-thread early return never leaves a stale caller buffer |
-| P1.5-O7 | Sigstore build-provenance | `actions/attest-build-provenance@v4.1.0` signs every release artifact; consumers verify with `gh attestation verify <file> --repo lahfir/agent-desktop` |
-| P1.5-O8 | Skill documentation | `skills/agent-desktop-ffi/SKILL.md` + references: `build-and-link.md`, `ownership.md`, `threading.md`, `error-handling.md` |
+| P1.5-O7 | Sigstore build-provenance | `actions/attest-build-provenance@v4.1.0` signs every release artifact; consumers verify with `gh attestation verify <file> --repo lahfir/deskpilot` |
+| P1.5-O8 | Skill documentation | `skills/deskpilot-ffi/SKILL.md` + references: `build-and-link.md`, `ownership.md`, `threading.md`, `error-handling.md` |
 | P1.5-O9 | README surface | "Language bindings (FFI)" section on the project README with platform→artifact table, Python dlopen snippet, and Sigstore verify one-liner |
 
 ### Crate Layout
@@ -583,9 +583,9 @@ Phase 1.5 ships `crates/ffi/` as a first-class distribution target. The CLI stay
 crates/ffi/
 ├── Cargo.toml           # crate-type = ["cdylib", "rlib"]
 ├── cbindgen.toml        # [export].include forces emission of AdActionKind / AdDirection / AdModifier / AdMouseButton / AdMouseEventKind / AdScreenshotKind / AdSnapshotSurface / AdWindowOpKind even though the public ABI stores raw i32
-├── build.rs             # runs cbindgen into $OUT_DIR, stamps target/ffi-header-path.txt, bakes install_name = @rpath/libagent_desktop_ffi.dylib on macOS
+├── build.rs             # runs cbindgen into $OUT_DIR, stamps target/ffi-header-path.txt, bakes install_name = @rpath/libdeskpilot_ffi.dylib on macOS
 ├── include/
-│   └── agent_desktop.h  # committed, drift-checked against the OUT_DIR output
+│   └── deskpilot.h  # committed, drift-checked against the OUT_DIR output
 ├── src/                 # ad_* extern "C" entrypoints, organized by domain
 │   ├── types/           # 34 one-type-per-file modules (AdAction, AdRect, AdWindowList, ...)
 │   ├── convert/         # string / rect / window / app / surface / notification helpers
@@ -610,13 +610,13 @@ Shipped via `.github/workflows/release.yml` `build-ffi` matrix job:
 
 | Target | Runner | Archive | Library |
 |--------|--------|---------|---------|
-| aarch64-apple-darwin | macos-latest | `.tar.gz` | `libagent_desktop_ffi.dylib` |
-| x86_64-apple-darwin | macos-latest | `.tar.gz` | `libagent_desktop_ffi.dylib` |
-| x86_64-unknown-linux-gnu | ubuntu-22.04 | `.tar.gz` | `libagent_desktop_ffi.so` |
-| aarch64-unknown-linux-gnu | ubuntu-22.04-arm | `.tar.gz` | `libagent_desktop_ffi.so` |
-| x86_64-pc-windows-msvc | windows-latest | `.zip` | `agent_desktop_ffi.dll` |
+| aarch64-apple-darwin | macos-latest | `.tar.gz` | `libdeskpilot_ffi.dylib` |
+| x86_64-apple-darwin | macos-latest | `.tar.gz` | `libdeskpilot_ffi.dylib` |
+| x86_64-unknown-linux-gnu | ubuntu-22.04 | `.tar.gz` | `libdeskpilot_ffi.so` |
+| aarch64-unknown-linux-gnu | ubuntu-22.04-arm | `.tar.gz` | `libdeskpilot_ffi.so` |
+| x86_64-pc-windows-msvc | windows-latest | `.zip` | `deskpilot_ffi.dll` |
 
-Each archive contains `lib/`, `include/agent_desktop.h`, `LICENSE`, and a short `README.md`. macOS tarballs have their `install_name` verified `@rpath/libagent_desktop_ffi.dylib` via `otool -D` before upload. Linux binaries use `ubuntu-22.04` (glibc 2.35) as the baseline for maximum distro coverage.
+Each archive contains `lib/`, `include/deskpilot.h`, `LICENSE`, and a short `README.md`. macOS tarballs have their `install_name` verified `@rpath/libdeskpilot_ffi.dylib` via `otool -D` before upload. Linux binaries use `ubuntu-22.04` (glibc 2.35) as the baseline for maximum distro coverage.
 
 ### Build Profile
 
@@ -630,9 +630,9 @@ Regular `release` profile keeps `panic = "abort"` for the CLI binary, so a panic
 
 ### CI Hooks Added
 
-- `cargo build --profile release-ffi -p agent-desktop-ffi` on every PR
-- `cargo test -p agent-desktop-ffi --tests` runs the 3 integration suites
-- FFI header drift check diffs the committed header against the OUT_DIR output discovered via `target/ffi-header-path.txt` (deterministic even with warm caches and multiple `agent-desktop-ffi-<hash>/` directories)
+- `cargo build --profile release-ffi -p deskpilot-ffi` on every PR
+- `cargo test -p deskpilot-ffi --tests` runs the 3 integration suites
+- FFI header drift check diffs the committed header against the OUT_DIR output discovered via `target/ffi-header-path.txt` (deterministic even with warm caches and multiple `deskpilot-ffi-<hash>/` directories)
 
 ### New Dependencies
 
@@ -688,7 +688,7 @@ These items are tracked in the Phase 2 plan (`docs/plans/2026-04-18-001-feat-pha
 
 
 
-Phase 2 brings agent-desktop to Windows. It is also the phase that closes the cross-platform feature-parity gaps surfaced after the v0.1.13 FFI ship — shipping Windows meaningfully requires new core abstractions (stable identifiers, event subscriptions, text-range primitives) that Windows UIA exposes natively and the macOS adapter currently does not surface. Every new trait method added here is implemented on both platforms in the same PR pair: Windows ships the native version, macOS backfills using the equivalent AX API. Linux (Phase 3) mirrors both against AT-SPI2.
+Phase 2 brings deskpilot to Windows. It is also the phase that closes the cross-platform feature-parity gaps surfaced after the v0.1.13 FFI ship — shipping Windows meaningfully requires new core abstractions (stable identifiers, event subscriptions, text-range primitives) that Windows UIA exposes natively and the macOS adapter currently does not surface. Every new trait method added here is implemented on both platforms in the same PR pair: Windows ships the native version, macOS backfills using the equivalent AX API. Linux (Phase 3) mirrors both against AT-SPI2.
 
 Core engine, CLI parser, JSON contract invariants, and command-registration pattern are preserved. What Phase 2 legitimately changes: `AccessibilityNode` field set, `Action` enum variants, `ErrorCode` variants, `PlatformAdapter` trait size. Every change is additive (`#[non_exhaustive]` already guards the enums) and every macOS backfill lands atomically with the Windows implementation so the two platforms never drift.
 
@@ -923,7 +923,7 @@ Chromium-based apps (Electron, Chrome, Edge, VS Code) expose deep, noisy accessi
 Added to `Cargo.toml` as target-gated dependencies:
 ```toml
 [target.'cfg(target_os = "windows")'.dependencies]
-agent-desktop-windows = { path = "crates/windows" }
+deskpilot-windows = { path = "crates/windows" }
 uiautomation = "0.24"
 windows = { version = "0.62.2", features = ["Win32_UI_Input", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_Com", "Win32_System_DataExchange", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Graphics_Capture", "Win32_Graphics_Direct3D11"] }
 windows-capture = "1.5.4"
@@ -989,13 +989,13 @@ screencapturekit = "0.3"
 
 - Add GitHub Actions Windows runner alongside existing macOS runner
 - Both runners execute: `cargo clippy --all-targets -- -D warnings`, `cargo test --workspace`
-- `cargo tree -p agent-desktop-core` continues to contain zero platform crate names
+- `cargo tree -p deskpilot-core` continues to contain zero platform crate names
 - Binary size check: Windows `.exe` must be under 15MB
 
 ### Release
 
 - [ ] Prebuilt Windows `.exe` binary added to the existing `.github/workflows/release.yml` `build` matrix (alongside the macOS CLI targets). Uses the same tarball + sha256 + attestation pipeline shipped in Phase 1.5.
-- [ ] npm `postinstall.js` gains a `win32-x64` / `win32-arm64` branch so `npm install -g agent-desktop` works on Windows without changes to package shape.
+- [ ] npm `postinstall.js` gains a `win32-x64` / `win32-arm64` branch so `npm install -g deskpilot` works on Windows without changes to package shape.
 - [ ] The Phase 1.5 FFI cdylib for Windows (`x86_64-pc-windows-msvc`) is already shipping; Phase 2 adds `aarch64-pc-windows-msvc` for ARM64 parity.
 - [ ] Every new `ad_*` FFI entrypoint (P2-O16) is included in the `release-ffi` build and CI header drift check.
 - [ ] GitHub Release notes document Windows support and installation.
@@ -1004,7 +1004,7 @@ screencapturekit = "0.3"
 
 Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 
-- [ ] Create `.claude/skills/agent-desktop-windows/SKILL.md`:
+- [ ] Create `.claude/skills/deskpilot-windows/SKILL.md`:
   - UIA permission model and UAC handling
   - Windows-specific behaviors (UIA patterns, WinUI3 quirks, COM initialization)
   - Chromium/Electron compatibility: depth-skip, resolver depth, surface detection patterns
@@ -1235,7 +1235,7 @@ Same Chromium/Electron compatibility patterns as Phase 2 (Windows), adapted for 
 Added to `Cargo.toml` as target-gated dependency:
 ```toml
 [target.'cfg(target_os = "linux")'.dependencies]
-agent-desktop-linux = { path = "crates/linux" }
+deskpilot-linux = { path = "crates/linux" }
 ```
 
 Note: `tokio` is introduced here for the first time. Phases 1-2 are fully synchronous. The Linux adapter requires async D-Bus calls via zbus.
@@ -1286,7 +1286,7 @@ Note: `tokio` is introduced here for the first time. Phases 1-2 are fully synchr
 
 - GitHub Actions matrix: macOS + Windows + Ubuntu (all three on every PR)
 - All runners execute: `cargo clippy --all-targets -- -D warnings`, `cargo test --workspace`
-- `cargo tree -p agent-desktop-core` continues to contain zero platform crate names
+- `cargo tree -p deskpilot-core` continues to contain zero platform crate names
 - Binary size check: all platform binaries must be under 15MB
 
 ### Release
@@ -1300,7 +1300,7 @@ Note: `tokio` is introduced here for the first time. Phases 1-2 are fully synchr
 
 Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 
-- [ ] Create `.claude/skills/agent-desktop-linux/SKILL.md`:
+- [ ] Create `.claude/skills/deskpilot-linux/SKILL.md`:
   - AT-SPI2/D-Bus setup and bus detection
   - Wayland vs X11 differences (input via xdotool/ydotool, clipboard via wl-clipboard/xclip, screenshot via PipeWire/XGetImage)
   - Required system tools: `xdotool` or `ydotool`, `xclip` or `wl-clipboard`
@@ -1335,7 +1335,7 @@ Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 
 **Status: Planned**
 
-Phase 4 adds a new I/O layer. Core engine and all three platform adapters are unchanged. The MCP server wraps existing command logic in JSON-RPC tool definitions, enabling agent-desktop to work as an MCP-native desktop automation server for Claude Desktop, Cursor, VS Code Copilot, Gemini CLI, Microsoft Agent Framework 1.0, and any other MCP-compatible host.
+Phase 4 adds a new I/O layer. Core engine and all three platform adapters are unchanged. The MCP server wraps existing command logic in JSON-RPC tool definitions, enabling deskpilot to work as an MCP-native desktop automation server for Claude Desktop, Cursor, VS Code Copilot, Gemini CLI, Microsoft Agent Framework 1.0, and any other MCP-compatible host.
 
 By Phase 4 the CLI already covers 53+ commands on three platforms, the FFI ships as a shared library for in-process consumers, and the cross-platform event / text-range / stable-selector primitives from Phase 2 / 3 are in place. MCP mode is a **transport + discovery layer**, nothing more. Per the [Command Surface Architecture](#command-surface-architecture-dry-invariant) invariant at the top of this document, the MCP crate contains zero per-tool and zero per-platform code — it walks the same compile-time `inventory` registry the CLI and FFI use, and dispatches to the same `execute(args, adapter)` functions. New commands added in Phase 2 or Phase 5 (e.g. `watch_element`, `text select-range`, `find --visual`) become MCP tools automatically with no changes to `crates/mcp/`.
 
@@ -1348,11 +1348,11 @@ By Phase 4 the CLI already covers 53+ commands on three platforms, the FFI ships
 | P4-O3 | Claude Desktop + Cursor + VS Code + Gemini CLI + MS Agent Framework validated | Each host invokes tools to control a desktop app end-to-end on all three platforms; repo ships `mcp.json` / `claude_desktop_config.json` / `.cursor/mcp.json` examples per host |
 | P4-O4 | Tool annotations | `readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint` on every tool; Claude Desktop surfaces destructive tools with a confirmation prompt |
 | P4-O5 | Ref-based MCP tool shape (Playwright-MCP idiom) | Tools take `{ref: "e5"}` not raw `element_handle`, matching Playwright MCP so agents can swap between the two without relearning selectors. Tree snapshots return as MCP resources with refs inline |
-| P4-O6 | MCP resource types | `agent-desktop://refmap/current`, `agent-desktop://snapshot/latest`, `agent-desktop://audit/{trace_id}` (audit log under Phase 5). `resources/list` + `resources/read` expose the current RefMap and last snapshot without re-running the command |
+| P4-O6 | MCP resource types | `deskpilot://refmap/current`, `deskpilot://snapshot/latest`, `deskpilot://audit/{trace_id}` (audit log under Phase 5). `resources/list` + `resources/read` expose the current RefMap and last snapshot without re-running the command |
 | P4-O7 | Tree-diff notifications | `watch_element` events (Phase 2 P2-O11) stream as MCP `notifications/message` during a long-running wait, so the host sees value-changed / focus-changed events as they happen rather than polling |
 | P4-O8 | Progress notifications | `notifications/progress` for `wait`, `snapshot --skeleton` → `--root` drill-down chains, and large-tree traversals. Agents surface progress to users instead of hanging |
 | P4-O9 | Tool-level permission tiers | Observation tools (`desktop_snapshot`, `desktop_find`, `desktop_get`, `desktop_is`, `desktop_list_*`) are freely callable. Interaction tools (`desktop_click`, `desktop_type_text`, `desktop_set_value`, `desktop_drag`) are gated behind an `interactive` capability negotiated at `initialize`. Destructive tools (`desktop_close_app`, `desktop_dismiss_all_notifications`) require the `destructive` capability plus the Phase 5 audit log |
-| P4-O10 | Session-scoped RefMap | Each MCP session has its own in-memory RefMap keyed by `session_id` — no conflict with the on-disk CLI RefMap, no cross-session leakage when a host runs multiple agent-desktop-mcp instances |
+| P4-O10 | Session-scoped RefMap | Each MCP session has its own in-memory RefMap keyed by `session_id` — no conflict with the on-disk CLI RefMap, no cross-session leakage when a host runs multiple deskpilot-mcp instances |
 | P4-O11 | MCP `initialize` returns tri-platform capability matrix | The `initialize` response declares platform (macOS / Windows / Linux), permission status (AX + Screen Recording + Automation tri-state from Phase 2 P2-O17), display-server (Linux), and the set of actually-supported tools given current permissions. A host can decide whether to prompt for missing permissions before the first tool call |
 | P4-O12 | SSE + Streamable HTTP transports | Stdio remains primary. SSE (pre-March-2025 spec) and **Streamable HTTP** (post-March-2025 replacement) are implemented for remote scenarios — MS Agent Framework and future MCP hosts prefer the HTTP transport |
 
@@ -1362,9 +1362,9 @@ The binary crate's `main.rs` detects mode:
 - If invoked with `--mcp` or stdin is a pipe: enter MCP server mode
 - Otherwise: parse CLI arguments, execute command, print JSON to stdout
 
-This is the invariant: every MCP tool maps 1:1 to a CLI command. `agent-desktop snapshot --app Finder` is identical to invoking the MCP `desktop_snapshot` tool. Testing, debugging, and documentation are never fragmented.
+This is the invariant: every MCP tool maps 1:1 to a CLI command. `deskpilot snapshot --app Finder` is identical to invoking the MCP `desktop_snapshot` tool. Testing, debugging, and documentation are never fragmented.
 
-### New Crate: `agent-desktop-mcp` (platform-agnostic, no per-command code)
+### New Crate: `deskpilot-mcp` (platform-agnostic, no per-command code)
 
 The MCP crate is small and generic by design. It contains **zero per-tool files and zero per-platform code**. Per the Command Surface Architecture invariant at the top of this document, every CLI command auto-registers into a shared `inventory` registry; the MCP server iterates that registry at startup and exposes each entry as an MCP tool.
 
@@ -1387,7 +1387,7 @@ That's the whole crate. It doesn't know what `desktop_click` does — it reads t
 // crates/mcp/src/server.rs  (illustrative, ~80 lines total for the crate)
 
 pub async fn serve(adapter: Box<dyn PlatformAdapter>) -> Result<()> {
-    let mut server = rmcp::ServerBuilder::new("agent-desktop", env!("CARGO_PKG_VERSION"));
+    let mut server = rmcp::ServerBuilder::new("deskpilot", env!("CARGO_PKG_VERSION"));
 
     // Walk the compile-time registry. No hand-maintained tool list.
     for cmd in inventory::iter::<CommandDescriptor>() {
@@ -1425,7 +1425,7 @@ Observation tools (always available):
 
 | MCP Tool | CLI | Returns |
 |----------|-----|---------|
-| `desktop_snapshot` | `snapshot` | Tree + refmap in response; also published as `agent-desktop://snapshot/latest` resource |
+| `desktop_snapshot` | `snapshot` | Tree + refmap in response; also published as `deskpilot://snapshot/latest` resource |
 | `desktop_find` | `find <query>` | Matching refs (array) |
 | `desktop_get` | `get <prop> <ref>` | Property value |
 | `desktop_is` | `is <state> <ref>` | Boolean |
@@ -1475,11 +1475,11 @@ Resources let hosts pull structured state without re-issuing a tool call:
 
 | URI | Content | Update model |
 |-----|---------|--------------|
-| `agent-desktop://refmap/current` | JSON RefMap for the current MCP session (not the on-disk CLI refmap) | Replaced on every `desktop_snapshot` invocation; subscribable via `notifications/resources/updated` |
-| `agent-desktop://snapshot/latest` | Last `desktop_snapshot` response as JSON (tree + refmap + metadata) | Same update model |
-| `agent-desktop://permissions/current` | Tri-state permission report (AX, Screen Recording, Automation, display-server) | Refreshed on request; subscribable when Phase 2 P2-O17 permission observer is available |
-| `agent-desktop://events/stream` | Merged `watch_element` event stream for the session | Real-time, subscribable |
-| `agent-desktop://audit/{trace_id}` | Phase 5 append-only audit log entries for a trace | Growable; new entries as `notifications/resources/updated` |
+| `deskpilot://refmap/current` | JSON RefMap for the current MCP session (not the on-disk CLI refmap) | Replaced on every `desktop_snapshot` invocation; subscribable via `notifications/resources/updated` |
+| `deskpilot://snapshot/latest` | Last `desktop_snapshot` response as JSON (tree + refmap + metadata) | Same update model |
+| `deskpilot://permissions/current` | Tri-state permission report (AX, Screen Recording, Automation, display-server) | Refreshed on request; subscribable when Phase 2 P2-O17 permission observer is available |
+| `deskpilot://events/stream` | Merged `watch_element` event stream for the session | Real-time, subscribable |
+| `deskpilot://audit/{trace_id}` | Phase 5 append-only audit log entries for a trace | Growable; new entries as `notifications/resources/updated` |
 
 ### Framework Integration Targets
 
@@ -1499,10 +1499,10 @@ Each host gets a ~30-line config + a 60-second "hello agent" demo (launch Calcul
 
 ### Transport
 
-- **Stdio (primary):** MCP host spawns `agent-desktop --mcp` as a child process. JSON-RPC over stdin/stdout. Required; validated against all hosts in the Framework Integration table.
+- **Stdio (primary):** MCP host spawns `deskpilot --mcp` as a child process. JSON-RPC over stdin/stdout. Required; validated against all hosts in the Framework Integration table.
 - **Streamable HTTP (P4-O12, required for MS Agent Framework):** Single HTTP endpoint at `POST /mcp` with chunked response streaming; replaces the pre-March-2025 SSE transport. Used when the host declares `transport: http` in its MCP config. Binds to `127.0.0.1` by default; `--mcp-bind <addr:port>` CLI flag overrides.
 - **SSE (legacy):** Retained for hosts that haven't migrated to Streamable HTTP. Gated on `--mcp-transport sse`.
-- **Session:** On `initialize`, detect platform, probe permissions (AX + Screen Recording + Automation tri-state), report tool capabilities given current permissions. Each MCP session has its own in-memory RefMap keyed by `session_id` — never reads or writes the on-disk CLI refmap at `~/.agent-desktop/last_refmap.json`. Sessions are isolated so the same host can run multiple agent-desktop-mcp instances concurrently without cross-contamination.
+- **Session:** On `initialize`, detect platform, probe permissions (AX + Screen Recording + Automation tri-state), report tool capabilities given current permissions. Each MCP session has its own in-memory RefMap keyed by `session_id` — never reads or writes the on-disk CLI refmap at `~/.deskpilot/last_refmap.json`. Sessions are isolated so the same host can run multiple deskpilot-mcp instances concurrently without cross-contamination.
 
 ### Initialize Handler
 
@@ -1525,7 +1525,7 @@ Note: If `tokio` was already introduced in Phase 3 (Linux), it is already availa
 ### Binary Crate Changes
 
 - `src/main.rs` — Add `--mcp` flag detection, route to MCP server mode
-- `Cargo.toml` — Add `agent-desktop-mcp` dependency (non-platform-gated, available on all platforms)
+- `Cargo.toml` — Add `deskpilot-mcp` dependency (non-platform-gated, available on all platforms)
 - No changes to `dispatch.rs`, `cli.rs`, or any command files — MCP tools call the same `execute()` functions
 
 ### Testing
@@ -1572,8 +1572,8 @@ Provide ready-to-use config snippets for:
 ```json
 {
   "mcpServers": {
-    "agent-desktop": {
-      "command": "agent-desktop",
+    "deskpilot": {
+      "command": "deskpilot",
       "args": ["--mcp"]
     }
   }
@@ -1584,8 +1584,8 @@ Provide ready-to-use config snippets for:
 ```json
 {
   "mcpServers": {
-    "agent-desktop": {
-      "command": "agent-desktop",
+    "deskpilot": {
+      "command": "deskpilot",
       "args": ["--mcp"]
     }
   }
@@ -1596,7 +1596,7 @@ Provide ready-to-use config snippets for:
 
 Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 
-- [ ] Create `.claude/skills/agent-desktop-mcp/SKILL.md`:
+- [ ] Create `.claude/skills/deskpilot-mcp/SKILL.md`:
   - MCP tool surface documentation (all tools, parameters, annotations)
   - Transport configuration (stdio setup, optional SSE)
   - Session management (RefMap scoping, initialize flow)
@@ -1612,7 +1612,7 @@ Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 ### README Update
 
 - [ ] Add "MCP Server" section:
-  - How to start: `agent-desktop --mcp`
+  - How to start: `deskpilot --mcp`
   - What it does: wraps all CLI commands as MCP tools
   - Session behavior: RefMap scoped per session
 - [ ] Add Claude Desktop configuration snippet
@@ -1626,7 +1626,7 @@ Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 
 **Status: Planned**
 
-Phase 5 transforms agent-desktop from functional to enterprise-grade. Persistent daemon process, session isolation for concurrent agents, the safety trio required for enterprise and regulated deployments (dry-run + confirm + audit log), an OCR/vision fallback for custom-rendered UIs where the accessibility tree is empty, session tracing with OpenTelemetry-compatible event streams, and first-class distribution via native package managers.
+Phase 5 transforms deskpilot from functional to enterprise-grade. Persistent daemon process, session isolation for concurrent agents, the safety trio required for enterprise and regulated deployments (dry-run + confirm + audit log), an OCR/vision fallback for custom-rendered UIs where the accessibility tree is empty, session tracing with OpenTelemetry-compatible event streams, and first-class distribution via native package managers.
 
 ### Objectives
 
@@ -1636,10 +1636,10 @@ Phase 5 transforms agent-desktop from functional to enterprise-grade. Persistent
 | P5-O2 | Session isolation | Two agents hold independent RefMaps without interference |
 | P5-O3 | Enterprise quality gates | All gates in quality gates table pass |
 | P5-O4 | Package manager distribution | Available via brew (macOS), winget/scoop (Windows), snap/apt (Linux) with Sigstore attestation verification on install |
-| P5-O5 | Safety trio: `--dry-run` / `--confirm` / append-only audit log | Every destructive command supports `--dry-run` (resolves ref, computes the action, emits the would-be JSON response, does not execute), `--confirm` (stderr prompt with configurable timeout), and `~/.agent-desktop/audit.jsonl` append-only log with trace_id, actor, tool, args, decision (allowed / dry-run / denied / confirmed), exit code, timestamp. Covers EU AI Act Article 14 and OWASP Agentic Top-10 (2026) requirements |
-| P5-O6 | Policy allowlist / denylist | `~/.agent-desktop/policy.yaml` defines per-tool rules — e.g. "never call `desktop_close_app` for `com.apple.finder`", "require confirm for any action on bundle ID `com.apple.mail`". Loaded at daemon start, reload-on-SIGHUP. Policy decisions land in the audit log |
+| P5-O5 | Safety trio: `--dry-run` / `--confirm` / append-only audit log | Every destructive command supports `--dry-run` (resolves ref, computes the action, emits the would-be JSON response, does not execute), `--confirm` (stderr prompt with configurable timeout), and `~/.deskpilot/audit.jsonl` append-only log with trace_id, actor, tool, args, decision (allowed / dry-run / denied / confirmed), exit code, timestamp. Covers EU AI Act Article 14 and OWASP Agentic Top-10 (2026) requirements |
+| P5-O6 | Policy allowlist / denylist | `~/.deskpilot/policy.yaml` defines per-tool rules — e.g. "never call `desktop_close_app` for `com.apple.finder`", "require confirm for any action on bundle ID `com.apple.mail`". Loaded at daemon start, reload-on-SIGHUP. Policy decisions land in the audit log |
 | P5-O7 | OCR / vision fallback (`find --visual`) | When the AX tree is empty or the target isn't exposed (Canvas apps, Flutter-desktop, games, remote desktop, Figma plugins), `find --visual "label"` falls back to a per-window screenshot + OCR to locate text. macOS: `Vision` framework `VNRecognizeTextRequest`. Windows: `Windows.Media.Ocr.OcrEngine`. Linux: Tesseract via `tesseract` crate. Returns a synthetic ref that routes to coordinate events; clearly marked `source: "visual"` in output to signal reduced reliability |
-| P5-O8 | Session trace + OpenTelemetry-compatible event stream | `--trace-id <uuid>` on every CLI invocation; generated if not provided. Each command appends structured events (command start, adapter call, action dispatched, exit) to `~/.agent-desktop/traces/{trace_id}.jsonl`. Events are OpenTelemetry-compliant (`span_id`, `trace_id`, `parent_span_id`, `span_name`, `attributes`). New `agent-desktop trace view <uuid>` pretty-prints; `trace export <uuid>` emits OTLP JSON |
+| P5-O8 | Session trace + OpenTelemetry-compatible event stream | `--trace-id <uuid>` on every CLI invocation; generated if not provided. Each command appends structured events (command start, adapter call, action dispatched, exit) to `~/.deskpilot/traces/{trace_id}.jsonl`. Events are OpenTelemetry-compliant (`span_id`, `trace_id`, `parent_span_id`, `span_name`, `attributes`). New `deskpilot trace view <uuid>` pretty-prints; `trace export <uuid>` emits OTLP JSON |
 | P5-O9 | Screencast / screenshot-per-action receipt | `--record-trace <path.mp4>` on long-running MCP sessions or CLI batches. Uses Phase 2 P2-O13 modern screenshot APIs at 2 Hz by default. Parity with Playwright 1.59 `page.screencast`. Mutually exclusive with `--dry-run` (nothing to record) |
 | P5-O10 | Sigstore attestation verification at install time | `brew install` formula and `winget` manifest run `cosign verify-blob` / `gh attestation verify` against the downloaded tarball before installing. Prevents supply-chain tampering. apt/snap use distro-native signatures; the formula publishes both Sigstore bundle and the checksum |
 
@@ -1648,7 +1648,7 @@ Phase 5 transforms agent-desktop from functional to enterprise-grade. Persistent
 The daemon is a long-running process that maintains state between CLI/MCP invocations, dramatically reducing startup latency.
 
 **Auto-start:**
-- CLI detects if daemon is running by checking for socket file (`~/.agent-desktop/daemon.sock` on Unix, named pipe on Windows)
+- CLI detects if daemon is running by checking for socket file (`~/.deskpilot/daemon.sock` on Unix, named pipe on Windows)
 - If not running, spawns daemon as background process
 - Daemon listens on the socket for incoming commands
 
@@ -1664,7 +1664,7 @@ The daemon is a long-running process that maintains state between CLI/MCP invoca
 - Session destroyed on disconnect or explicit `session kill`
 
 **Health check:**
-- `agent-desktop status` returns: daemon PID, uptime, active session count, platform, permission status
+- `deskpilot status` returns: daemon PID, uptime, active session count, platform, permission status
 
 ### New Commands
 
@@ -1672,9 +1672,9 @@ The daemon is a long-running process that maintains state between CLI/MCP invoca
 |---------|-------------|
 | `session list` | List active daemon sessions with IDs, creation time, last activity |
 | `session kill <id>` | Terminate a specific daemon session, release its RefMap |
-| `trace view <uuid>` | Pretty-print a session trace from `~/.agent-desktop/traces/{uuid}.jsonl` |
+| `trace view <uuid>` | Pretty-print a session trace from `~/.deskpilot/traces/{uuid}.jsonl` |
 | `trace export <uuid> [--otlp \| --har]` | Export a session trace as OpenTelemetry OTLP JSON or HAR for post-mortem inspection |
-| `audit tail [--follow]` | Tail `~/.agent-desktop/audit.jsonl`, optionally streaming new entries |
+| `audit tail [--follow]` | Tail `~/.deskpilot/audit.jsonl`, optionally streaming new entries |
 | `audit verify <path>` | Verify the append-only integrity of an audit log (hash-chain check) |
 | `policy check <command> <args…>` | Evaluate the policy file against a would-be command without executing |
 | `find --visual "<label>"` | OCR-based visual fallback when the AX tree has no match for `label` (P5-O7) |
@@ -1702,24 +1702,24 @@ Every destructive operation — `close-app`, `dismiss-all-notifications`, `set-v
 1. **`--dry-run`** resolves refs, validates all inputs, evaluates the policy, computes the would-be `data` / `error` fields, and emits the normal JSON envelope with `dry_run: true` added. No adapter call happens. The ref stays valid for a subsequent non-dry-run invocation within the same snapshot.
 2. **`--confirm`** prints a structured prompt to stderr:
    ```
-   agent-desktop: destructive action requires confirmation
+   deskpilot: destructive action requires confirmation
      command: close-app
      target:  Finder (bundle com.apple.finder)
      trace:   9f3c2a…
    Proceed? [y/N] (30s timeout)
    ```
    Defaults: CLI = off (opt-in), MCP `destructive` capability = on (opt-out via `skipConfirm: true` at init).
-3. **Append-only audit log** at `~/.agent-desktop/audit.jsonl`:
+3. **Append-only audit log** at `~/.deskpilot/audit.jsonl`:
    ```json
    {"ts":"2026-05-…","trace_id":"9f3c…","actor":"cli|mcp:claude-desktop","tool":"close-app","args":{"app":"Finder"},"policy_decision":"allowed","user_decision":"confirmed","exit":0,"prev_hash":"sha256:…","entry_hash":"sha256:…"}
    ```
-   Hash-chained (Merkle-style) so `agent-desktop audit verify` detects tampering. File mode `0o600`, directory `0o700`. Rotated at 100 MB via `audit.jsonl.{N}.gz`.
+   Hash-chained (Merkle-style) so `deskpilot audit verify` detects tampering. File mode `0o600`, directory `0o700`. Rotated at 100 MB via `audit.jsonl.{N}.gz`.
 
 Maps to real regulatory anchors: **EU AI Act Article 14 (human oversight + traceability)**, **OWASP Agentic Top-10 2026 AA-02 (human-in-the-loop) / AA-06 (audit trail)**. Shipping without the trio closes off enterprise adoption; shipping with it opens it.
 
 ### Policy Engine (P5-O6)
 
-`~/.agent-desktop/policy.yaml`, loaded at daemon start, reloaded on `SIGHUP`:
+`~/.deskpilot/policy.yaml`, loaded at daemon start, reloaded on `SIGHUP`:
 
 ```yaml
 version: 1
@@ -1757,14 +1757,14 @@ Matchers: `tool` (glob), `bundle` (exact or glob), `pid`, `trace_mcp_host` (`cli
 
 ### Session Trace + OpenTelemetry (P5-O8)
 
-Every command generates trace events written to `~/.agent-desktop/traces/{trace_id}.jsonl`:
+Every command generates trace events written to `~/.deskpilot/traces/{trace_id}.jsonl`:
 
 ```json
 {"ts":"…","trace_id":"9f3c…","span_id":"…","parent_span_id":"…","name":"cli.snapshot","kind":"internal","attributes":{"app":"Finder","skeleton":true,"ref_count":14,"duration_ms":87}}
 {"ts":"…","trace_id":"9f3c…","span_id":"…","parent_span_id":"<snapshot span>","name":"adapter.macos.get_tree","duration_ms":72,"attributes":{"surface":"window"}}
 ```
 
-Spans are OpenTelemetry-compliant so `agent-desktop trace export <uuid> --otlp` emits a valid OTLP JSON payload ingestable by Grafana Tempo / Jaeger / Honeycomb / Datadog. `--har` exports a HAR-like envelope for quick manual inspection. Screencasts from `--record-trace` attach as trace links.
+Spans are OpenTelemetry-compliant so `deskpilot trace export <uuid> --otlp` emits a valid OTLP JSON payload ingestable by Grafana Tempo / Jaeger / Honeycomb / Datadog. `--har` exports a HAR-like envelope for quick manual inspection. Screencasts from `--record-trace` attach as trace links.
 
 ### Enterprise Quality Gates
 
@@ -1794,12 +1794,12 @@ Spans are OpenTelemetry-compliant so `agent-desktop trace export <uuid> --otlp` 
 
 | Platform | Package Manager | Format | Install Command | Signing |
 |----------|----------------|--------|-----------------|---------|
-| macOS | Homebrew | Formula in `lahfir/homebrew-tap` | `brew install lahfir/tap/agent-desktop` | Sigstore `cosign verify-blob` against release tarball |
-| Windows | winget | Manifest in `microsoft/winget-pkgs` | `winget install agent-desktop` | Sigstore attestation check via `gh attestation verify` |
-| Windows | scoop | Manifest in `scoop-extras` bucket | `scoop install agent-desktop` | Sigstore attestation check |
-| Linux | snap | Snap package on snapcraft.io | `snap install agent-desktop` | Snap-native signature (snapd-signed) |
-| Linux | apt | `.deb` in custom PPA (`ppa:lahfir/agent-desktop`) | `apt install agent-desktop` | Debian-native `Release.gpg` signature |
-| All | `cargo install` | crates.io (the CLI binary crate, not the workspace) | `cargo install agent-desktop` | Sigstore provenance on the crates.io release |
+| macOS | Homebrew | Formula in `lahfir/homebrew-tap` | `brew install lahfir/tap/deskpilot` | Sigstore `cosign verify-blob` against release tarball |
+| Windows | winget | Manifest in `microsoft/winget-pkgs` | `winget install deskpilot` | Sigstore attestation check via `gh attestation verify` |
+| Windows | scoop | Manifest in `scoop-extras` bucket | `scoop install deskpilot` | Sigstore attestation check |
+| Linux | snap | Snap package on snapcraft.io | `snap install deskpilot` | Snap-native signature (snapd-signed) |
+| Linux | apt | `.deb` in custom PPA (`ppa:lahfir/deskpilot`) | `apt install deskpilot` | Debian-native `Release.gpg` signature |
+| All | `cargo install` | crates.io (the CLI binary crate, not the workspace) | `cargo install deskpilot` | Sigstore provenance on the crates.io release |
 
 Each package manager distribution includes:
 - Prebuilt binary for the target platform (matches `.github/workflows/release.yml` matrix output)
@@ -1829,11 +1829,11 @@ Each package manager distribution includes:
 - Compatibility: snapshot + click workflow on each app in target matrix
 
 **Package tests:**
-- brew formula installs and runs on macOS; `brew reinstall --debug agent-desktop` shows Sigstore verification log
+- brew formula installs and runs on macOS; `brew reinstall --debug deskpilot` shows Sigstore verification log
 - winget/scoop manifest installs and runs on Windows; manifest's `InstallerSuccessExitCodes` includes 0; Sigstore check in install script
 - snap package installs and runs on Ubuntu; `--talk-name=org.a11y.Bus` permission requested
 - apt `.deb` installs and runs on Ubuntu via PPA; `debsign` signature verified
-- `cargo install agent-desktop` succeeds from crates.io with provenance attestation
+- `cargo install deskpilot` succeeds from crates.io with provenance attestation
 - All packages produce correct `version` output including the ABI version
 - All packages handle permissions correctly on their platform
 
@@ -1853,7 +1853,7 @@ Each package manager distribution includes:
 - On Linux without Tesseract installed, `find --visual` returns `PlatformNotSupported` with the install command
 
 **Session trace tests (P5-O8):**
-- Every CLI invocation writes at least one span to `~/.agent-desktop/traces/{trace_id}.jsonl`
+- Every CLI invocation writes at least one span to `~/.deskpilot/traces/{trace_id}.jsonl`
 - `trace export <uuid> --otlp` produces a valid OpenTelemetry JSON payload that passes `otel-cli validate`
 - A multi-command batch under a single `--trace-id` produces a single-rooted span tree (batch command is the parent)
 - MCP sessions propagate the `trace_id` from the host's `initialize` params if provided; otherwise generate
@@ -1884,11 +1884,11 @@ Per [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 - [ ] Add "Daemon Mode" section:
   - How it works: auto-start, auto-stop, session isolation
   - Configuration: idle timeout, socket location
-  - Health check: `agent-desktop status`
+  - Health check: `deskpilot status`
 - [ ] Add package manager installation methods:
-  - `brew install agent-desktop` (macOS)
-  - `winget install agent-desktop` (Windows)
-  - `snap install agent-desktop` (Linux)
+  - `brew install deskpilot` (macOS)
+  - `winget install deskpilot` (Windows)
+  - `snap install deskpilot` (Linux)
 - [ ] Add "Performance" section:
   - Cold start vs warm snapshot benchmarks
   - Daemon mode benefits
@@ -1909,7 +1909,7 @@ The README is updated at the end of each phase to reflect the current state:
 | Phase | README Changes |
 |-------|---------------|
 | Phase 1 | Initial README: npm + source installation, core workflow, all 53 commands, JSON output, ref system, error codes, platform support table (macOS only) |
-| Phase 1.5 | Add "Language bindings (FFI)" section: platform→artifact table, 5-line Python dlopen snippet, `shasum -a 256 -c checksums.txt` + `gh attestation verify` verification, link to `skills/agent-desktop-ffi/` |
+| Phase 1.5 | Add "Language bindings (FFI)" section: platform→artifact table, 5-line Python dlopen snippet, `shasum -a 256 -c checksums.txt` + `gh attestation verify` verification, link to `skills/deskpilot-ffi/` |
 | Phase 2 | Add Windows: `.exe` installation, Windows permissions, update platform table, Windows build instructions |
 | Phase 3 | Add Linux: binary installation, AT-SPI2 setup, update platform table, Linux build instructions, minimum OS versions |
 | Phase 4 | Add MCP Server: `--mcp` usage, Claude Desktop config, Cursor config, tool-to-CLI mapping |
@@ -1920,7 +1920,7 @@ The README is updated at the end of each phase to reflect the current state:
 Per the [Skill Maintenance Addendum](./prd-addendum-skill-maintenance.md):
 
 1. **Every new command** must be added to the appropriate `commands-*.md` file
-2. **Every new platform** gets its own skill directory under `.claude/skills/agent-desktop-{platform}/`
+2. **Every new platform** gets its own skill directory under `.claude/skills/deskpilot-{platform}/`
 3. **Every new mode** (MCP, daemon) gets its own skill file
 4. **Breaking changes** to JSON output or CLI flags must update all affected skill files
 5. **Skill files are reviewed** as part of the PR checklist for any command-surface change
@@ -1946,7 +1946,7 @@ See [Command Surface Architecture](#command-surface-architecture-dry-invariant) 
 | Phase 4 | macOS + Windows + Ubuntu (+ MCP protocol tests) |
 | Phase 5 | macOS + Windows + Ubuntu (+ daemon tests, package build verification) |
 
-All runners enforce: `cargo clippy --all-targets -- -D warnings`, `cargo test --workspace`, `cargo tree -p agent-desktop-core` contains zero platform crate names, binary size <15MB.
+All runners enforce: `cargo clippy --all-targets -- -D warnings`, `cargo test --workspace`, `cargo tree -p deskpilot-core` contains zero platform crate names, binary size <15MB.
 
 ### Dependency Introduction Schedule
 

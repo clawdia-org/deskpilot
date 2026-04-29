@@ -3,7 +3,7 @@ use crate::error::{self, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::{AdNativeHandle, AdRefEntry};
 use crate::AdAdapter;
-use agent_desktop_core::refs::RefEntry as CoreRefEntry;
+use deskpilot_core::refs::RefEntry as CoreRefEntry;
 
 /// # Safety
 ///
@@ -29,8 +29,8 @@ pub unsafe extern "C" fn ad_resolve_element(
         let role = match c_to_string(entry.role) {
             Some(s) => s,
             None => {
-                error::set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                error::set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "role is null or invalid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;
@@ -44,8 +44,8 @@ pub unsafe extern "C" fn ad_resolve_element(
         let name = match try_c_to_string(entry.name) {
             Ok(value) => value,
             Err(()) => {
-                error::set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                error::set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "name is not valid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;

@@ -3,7 +3,7 @@ use crate::error::{set_last_error, AdResult};
 use crate::ffi_try::trap_panic;
 use crate::types::AdNativeHandle;
 use crate::AdAdapter;
-use agent_desktop_core::adapter::NativeHandle;
+use deskpilot_core::adapter::NativeHandle;
 use std::os::raw::c_char;
 
 /// Reads a single property off a previously-resolved element handle.
@@ -38,8 +38,8 @@ pub unsafe extern "C" fn ad_get(
         let adapter = &*adapter;
         let raw = (*handle).ptr;
         if raw.is_null() {
-            set_last_error(&agent_desktop_core::error::AdapterError::new(
-                agent_desktop_core::error::ErrorCode::InvalidArgs,
+            set_last_error(&deskpilot_core::error::AdapterError::new(
+                deskpilot_core::error::ErrorCode::InvalidArgs,
                 "handle.ptr is null — the handle has already been freed or was never resolved",
             ));
             return AdResult::ErrInvalidArgs;
@@ -48,8 +48,8 @@ pub unsafe extern "C" fn ad_get(
         let prop = match c_to_string(property) {
             Some(s) => s,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "property is null or invalid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;
@@ -84,8 +84,8 @@ pub unsafe extern "C" fn ad_get(
                 }
             },
             _ => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "unknown property — expected one of: value, bounds",
                 ));
                 AdResult::ErrInvalidArgs

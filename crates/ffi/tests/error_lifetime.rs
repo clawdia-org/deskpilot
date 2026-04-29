@@ -1,19 +1,19 @@
-use agent_desktop_ffi::error::AdResult;
+use deskpilot_ffi::error::AdResult;
 use std::ffi::CStr;
 
 #[allow(improper_ctypes)]
 extern "C" {
-    fn ad_adapter_create() -> *mut agent_desktop_ffi::AdAdapter;
-    fn ad_adapter_destroy(adapter: *mut agent_desktop_ffi::AdAdapter);
+    fn ad_adapter_create() -> *mut deskpilot_ffi::AdAdapter;
+    fn ad_adapter_destroy(adapter: *mut deskpilot_ffi::AdAdapter);
     fn ad_launch_app(
-        adapter: *const agent_desktop_ffi::AdAdapter,
+        adapter: *const deskpilot_ffi::AdAdapter,
         id: *const std::os::raw::c_char,
         timeout_ms: u64,
-        out: *mut agent_desktop_ffi::AdWindowInfo,
+        out: *mut deskpilot_ffi::AdWindowInfo,
     ) -> AdResult;
     fn ad_last_error_message() -> *const std::os::raw::c_char;
     fn ad_last_error_code() -> AdResult;
-    fn ad_check_permissions(adapter: *const agent_desktop_ffi::AdAdapter) -> AdResult;
+    fn ad_check_permissions(adapter: *const deskpilot_ffi::AdAdapter) -> AdResult;
 }
 
 #[test]
@@ -23,7 +23,7 @@ fn last_error_pointer_survives_across_successful_calls() {
         assert!(!adapter.is_null());
 
         let bad_id = std::ptr::null();
-        let mut out_win: agent_desktop_ffi::AdWindowInfo = std::mem::zeroed();
+        let mut out_win: deskpilot_ffi::AdWindowInfo = std::mem::zeroed();
         let rc = ad_launch_app(adapter, bad_id, 0, &mut out_win);
         // Worker-thread cargo tests hit the main-thread guard first
         // (ErrInternal); main-thread callers would see ErrInvalidArgs.

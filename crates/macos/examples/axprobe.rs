@@ -1,5 +1,5 @@
 //! AX API probe — discovers what every accessibility function returns on a live app.
-//! Run: cargo run -p agent-desktop-macos --bin axprobe -- Finder
+//! Run: cargo run -p deskpilot-macos --bin axprobe -- Finder
 //!
 //! This is a diagnostic tool used to learn exactly which attributes hold which
 //! data before writing tree traversal code. Output is deliberately verbose.

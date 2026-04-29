@@ -15,8 +15,8 @@
 
 #![allow(improper_ctypes)]
 
-use agent_desktop_ffi::error::AdResult;
-use agent_desktop_ffi::{
+use deskpilot_ffi::error::AdResult;
+use deskpilot_ffi::{
     AdAction, AdActionResult, AdAdapter, AdAppList, AdDirection, AdDragParams, AdFindQuery,
     AdKeyCombo, AdNativeHandle, AdPoint, AdRect, AdRefEntry, AdScrollParams, AdWindowInfo,
     AdWindowList,

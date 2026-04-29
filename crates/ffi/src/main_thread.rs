@@ -21,7 +21,7 @@ use crate::error::{set_last_error_static, AdResult};
 use std::ffi::CStr;
 
 static OFF_MAIN_THREAD_MESSAGE: &CStr =
-    c"agent_desktop FFI entry called off the main thread (macOS requires main-thread AX/Cocoa calls)";
+    c"deskpilot FFI entry called off the main thread (macOS requires main-thread AX/Cocoa calls)";
 
 #[cfg(target_os = "macos")]
 pub(crate) fn is_main_thread() -> bool {

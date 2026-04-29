@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     commands::{
         check, clear, click, collapse, double_click, drag, expand, find, focus, get, helpers,
         hover, is_check, key_down, key_up, mouse_click, mouse_down, mouse_move, mouse_up, press,
@@ -14,7 +14,7 @@ use crate::dispatch::{parse_direction, parse_mouse_button, parse_xy};
 pub fn dispatch_batch_command(
     command: &str,
     args: Value,
-    adapter: &dyn agent_desktop_core::adapter::PlatformAdapter,
+    adapter: &dyn deskpilot_core::adapter::PlatformAdapter,
 ) -> Result<Value, AppError> {
     match command {
         "snapshot" => snapshot::execute(
@@ -334,8 +334,8 @@ pub(crate) fn req_str(v: &Value, key: &str) -> Result<String, AppError> {
         .ok_or_else(|| AppError::invalid_input(format!("Batch: missing required field '{key}'")))
 }
 
-fn parse_batch_surface(s: Option<&str>) -> agent_desktop_core::adapter::SnapshotSurface {
-    use agent_desktop_core::adapter::SnapshotSurface;
+fn parse_batch_surface(s: Option<&str>) -> deskpilot_core::adapter::SnapshotSurface {
+    use deskpilot_core::adapter::SnapshotSurface;
     match s {
         Some("menu") => SnapshotSurface::Menu,
         Some("menubar") => SnapshotSurface::Menubar,

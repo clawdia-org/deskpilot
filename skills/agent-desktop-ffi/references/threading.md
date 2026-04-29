@@ -11,7 +11,7 @@ and Cocoa APIs require this.
 
 The check runs at **runtime, in every build profile** — worker-thread
 calls return `AD_RESULT_ERR_INTERNAL` with a `'static` diagnostic
-`"agent_desktop FFI entry called off the main thread (macOS requires
+`"deskpilot FFI entry called off the main thread (macOS requires
 main-thread AX/Cocoa calls)"`. No build-config difference; no silent
 UB window in release builds.
 
@@ -51,11 +51,11 @@ Two patterns work:
 ⚠ **Privilege-escalation vector.** `ad_check_permissions` calls macOS's
 `AXIsProcessTrusted()`, which returns the trust status of the **hosting
 executable** — i.e., the `python3` / `node` / `swift` process, not
-`agent-desktop` itself.
+`deskpilot` itself.
 
 Consequence: granting accessibility permission to one Python script's
 Python interpreter grants it to every Python script that dlopens
-`libagent_desktop_ffi.dylib`. Document this prominently for your
+`libdeskpilot_ffi.dylib`. Document this prominently for your
 consumers; consider requiring opt-in permission prompts in host code
 rather than relying on macOS's binary-level grant.
 

@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     adapter::WindowFilter,
     error::AdapterError,
     node::{AppInfo, WindowInfo},
@@ -102,7 +102,7 @@ pub fn launch_app_impl(id: &str, timeout_ms: u64) -> Result<WindowInfo, AdapterE
 
     if id.contains("..") || id.starts_with('/') {
         return Err(AdapterError::new(
-            agent_desktop_core::error::ErrorCode::InvalidArgs,
+            deskpilot_core::error::ErrorCode::InvalidArgs,
             format!("Invalid app identifier: '{id}'"),
         )
         .with_suggestion("Use an app name like 'Safari' or bundle ID like 'com.apple.Safari'."));
@@ -147,7 +147,7 @@ pub fn launch_app_impl(id: &str, timeout_ms: u64) -> Result<WindowInfo, AdapterE
     }
 
     Err(AdapterError::new(
-        agent_desktop_core::error::ErrorCode::AppNotFound,
+        deskpilot_core::error::ErrorCode::AppNotFound,
         format!("App '{id}' launched but no window appeared within {timeout_ms} ms"),
     )
     .with_suggestion("The app may take longer to start, or it may not create a visible window"))
@@ -178,7 +178,7 @@ pub fn close_app_impl(id: &str, force: bool) -> Result<(), AdapterError> {
                 .any(|c| !c.is_alphanumeric() && !matches!(c, ' ' | '-' | '.' | '_'))
             {
                 return Err(AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     format!("Invalid app name '{id}'"),
                 )
                 .with_suggestion("App name should only contain letters, numbers, spaces, hyphens, dots, or underscores."));

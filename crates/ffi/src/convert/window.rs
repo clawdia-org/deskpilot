@@ -1,7 +1,7 @@
 use crate::convert::rect::rect_to_c;
 use crate::convert::string::{free_c_string, string_to_c_lossy};
 use crate::types::{AdRect, AdWindowInfo};
-use agent_desktop_core::node::WindowInfo;
+use deskpilot_core::node::WindowInfo;
 use std::os::raw::c_char;
 use std::ptr;
 
@@ -42,7 +42,7 @@ pub(crate) unsafe fn free_window_info_fields(w: &mut AdWindowInfo) {
 mod tests {
     use super::*;
     use crate::convert::string::c_to_string;
-    use agent_desktop_core::node::Rect;
+    use deskpilot_core::node::Rect;
 
     #[test]
     fn test_window_info_roundtrip() {

@@ -1,5 +1,5 @@
-use agent_desktop_core::action::MouseButton;
-use agent_desktop_core::error::{AdapterError, ErrorCode};
+use deskpilot_core::action::MouseButton;
+use deskpilot_core::error::{AdapterError, ErrorCode};
 
 use crate::actions::discovery::ElementCaps;
 use crate::tree::AXElement;

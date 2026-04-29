@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     adapter::PlatformAdapter,
     commands::{
         dismiss_all_notifications, dismiss_notification, list_notifications, notification_action,

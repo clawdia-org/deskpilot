@@ -4,8 +4,8 @@ use crate::ffi_try::trap_panic;
 use crate::observation::walk::find_first_match;
 use crate::types::{AdFindQuery, AdNativeHandle, AdWindowInfo};
 use crate::AdAdapter;
-use agent_desktop_core::adapter::{SnapshotSurface, TreeOptions};
-use agent_desktop_core::refs::RefEntry;
+use deskpilot_core::adapter::{SnapshotSurface, TreeOptions};
+use deskpilot_core::refs::RefEntry;
 
 /// Finds the first element in `win`'s accessibility tree matching the
 /// query and resolves it to an opaque `AdNativeHandle`. The caller owns
@@ -81,8 +81,8 @@ pub unsafe extern "C" fn ad_find(
         ) {
             Some(n) => n,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::ElementNotFound,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::ElementNotFound,
                     "no element matched the find query",
                 ));
                 return AdResult::ErrElementNotFound;

@@ -1,9 +1,9 @@
 [package]
-name    = "agent-desktop-windows"
+name    = "deskpilot-windows"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [dependencies]
-agent-desktop-core.workspace = true
+deskpilot-core.workspace = true
 thiserror.workspace          = true

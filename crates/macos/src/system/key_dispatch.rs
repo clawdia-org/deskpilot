@@ -1,10 +1,10 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     action::{ActionResult, KeyCombo},
     error::AdapterError,
 };
 
 #[cfg(target_os = "macos")]
-use agent_desktop_core::{action::Modifier, adapter::WindowFilter};
+use deskpilot_core::{action::Modifier, adapter::WindowFilter};
 
 #[cfg(target_os = "macos")]
 pub fn press_for_app_impl(app_name: &str, combo: &KeyCombo) -> Result<ActionResult, AdapterError> {
@@ -177,7 +177,7 @@ fn ax_post_keyboard_event(
 
     let key_code = key_to_keycode(&combo.key).ok_or_else(|| {
         AdapterError::new(
-            agent_desktop_core::error::ErrorCode::ActionNotSupported,
+            deskpilot_core::error::ErrorCode::ActionNotSupported,
             format!(
                 "No AX equivalent for key combo '{}'. This combo has no menu-bar action.",
                 format_combo(combo)
@@ -300,7 +300,7 @@ pub(crate) fn find_pid_by_name(app_name: &str) -> Result<i32, AdapterError> {
     let windows = crate::adapter::list_windows_impl(&filter)?;
     windows.first().map(|w| w.pid).ok_or_else(|| {
         AdapterError::new(
-            agent_desktop_core::error::ErrorCode::AppNotFound,
+            deskpilot_core::error::ErrorCode::AppNotFound,
             format!("App '{app_name}' not found"),
         )
         .with_suggestion("Verify the app is running. Use 'list-apps' to see running applications.")

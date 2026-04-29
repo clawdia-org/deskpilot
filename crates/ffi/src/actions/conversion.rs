@@ -1,6 +1,6 @@
 use crate::convert::string::c_to_string;
 use crate::types::{AdAction, AdActionKind, AdDirection, AdKeyCombo, AdModifier};
-use agent_desktop_core::action::{
+use deskpilot_core::action::{
     Action, Direction, DragParams as CoreDragParams, KeyCombo as CoreKeyCombo, Modifier,
     Point as CorePoint,
 };

@@ -2,7 +2,7 @@
 //! `catch_unwind` effective under the optimized cdylib build.
 //!
 //! Build and run with:
-//!     cargo run --profile release-ffi --example panic_spike -p agent-desktop-ffi
+//!     cargo run --profile release-ffi --example panic_spike -p deskpilot-ffi
 //!
 //! Expected: prints "PANIC CAUGHT OK (code = -1)" and exits with code 0.
 //!

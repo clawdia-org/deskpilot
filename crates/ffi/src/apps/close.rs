@@ -25,8 +25,8 @@ pub unsafe extern "C" fn ad_close_app(
         let id_str = match c_to_string(id) {
             Some(s) => s,
             None => {
-                set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     "app id is null or invalid UTF-8",
                 ));
                 return AdResult::ErrInvalidArgs;

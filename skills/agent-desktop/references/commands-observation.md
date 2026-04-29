@@ -7,11 +7,11 @@ Commands for reading UI state without modifying it.
 Capture the accessibility tree as structured JSON with `@ref` IDs.
 
 ```bash
-agent-desktop snapshot --app "System Settings" -i
-agent-desktop snapshot --app "Finder" --max-depth 5 --include-bounds
-agent-desktop snapshot --app "App" --surface menu
-agent-desktop snapshot --app "App" --window-id "w-1234"
-agent-desktop snapshot --app "App" -i --compact
+deskpilot snapshot --app "System Settings" -i
+deskpilot snapshot --app "Finder" --max-depth 5 --include-bounds
+deskpilot snapshot --app "App" --surface menu
+deskpilot snapshot --app "App" --window-id "w-1234"
+deskpilot snapshot --app "App" -i --compact
 ```
 
 | Flag | Default | Description |
@@ -78,13 +78,13 @@ agent-desktop snapshot --app "App" -i --compact
 **Progressive drill-down workflow:**
 ```bash
 # Step 1: Get skeleton overview
-agent-desktop snapshot --skeleton --app Slack -i
+deskpilot snapshot --skeleton --app Slack -i
 
 # Step 2: Drill into a discovered region
-agent-desktop snapshot --root @e3 -i
+deskpilot snapshot --root @e3 -i
 
 # Step 3: Re-drill same region (scoped invalidation replaces @e3's refs)
-agent-desktop snapshot --root @e3 -i
+deskpilot snapshot --root @e3 -i
 ```
 
 **Tips:**
@@ -101,11 +101,11 @@ agent-desktop snapshot --root @e3 -i
 Search elements by role, name, value, or text content.
 
 ```bash
-agent-desktop find --app "Finder" --role button --name "OK"
-agent-desktop find --app "TextEdit" --role textfield
-agent-desktop find --app "Safari" --text "Sign In" --first
-agent-desktop find --app "App" --role checkbox --count
-agent-desktop find --app "App" --role button --nth 2
+deskpilot find --app "Finder" --role button --name "OK"
+deskpilot find --app "TextEdit" --role textfield
+deskpilot find --app "Safari" --text "Sign In" --first
+deskpilot find --app "App" --role checkbox --count
+deskpilot find --app "App" --role button --nth 2
 ```
 
 | Flag | Description |
@@ -137,12 +137,12 @@ agent-desktop find --app "App" --role button --nth 2
 Read a specific property from an element.
 
 ```bash
-agent-desktop get @e1 --property text
-agent-desktop get @e2 --property value
-agent-desktop get @e3 --property bounds
-agent-desktop get @e4 --property role
-agent-desktop get @e5 --property states
-agent-desktop get @e1 --property title
+deskpilot get @e1 --property text
+deskpilot get @e2 --property value
+deskpilot get @e3 --property bounds
+deskpilot get @e4 --property role
+deskpilot get @e5 --property states
+deskpilot get @e1 --property title
 ```
 
 | Property | Returns |
@@ -159,11 +159,11 @@ agent-desktop get @e1 --property title
 Check a boolean state on an element.
 
 ```bash
-agent-desktop is @e1 --property visible
-agent-desktop is @e2 --property enabled
-agent-desktop is @e3 --property checked
-agent-desktop is @e4 --property focused
-agent-desktop is @e5 --property expanded
+deskpilot is @e1 --property visible
+deskpilot is @e2 --property enabled
+deskpilot is @e3 --property checked
+deskpilot is @e4 --property focused
+deskpilot is @e5 --property expanded
 ```
 
 | Property | Checks |
@@ -184,9 +184,9 @@ agent-desktop is @e5 --property expanded
 Capture a PNG screenshot of an application window.
 
 ```bash
-agent-desktop screenshot --app "Finder"
-agent-desktop screenshot --app "Finder" output.png
-agent-desktop screenshot --window-id "w-1234" capture.png
+deskpilot screenshot --app "Finder"
+deskpilot screenshot --app "Finder" output.png
+deskpilot screenshot --window-id "w-1234" capture.png
 ```
 
 | Flag | Description |
@@ -202,7 +202,7 @@ When no output path is given, the screenshot is returned as a base64-encoded str
 List available accessibility surfaces for an application.
 
 ```bash
-agent-desktop list-surfaces --app "Finder"
+deskpilot list-surfaces --app "Finder"
 ```
 
 Returns the available surfaces (window, menu, menubar, sheet, popover, alert) for snapshotting. Use this to discover what surfaces are currently available before targeting a specific one with `snapshot --surface`.

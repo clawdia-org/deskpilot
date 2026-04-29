@@ -80,8 +80,8 @@ macro_rules! decode_optional_filter {
         match $crate::convert::string::try_c_to_string($ptr) {
             Ok(value) => value,
             Err(()) => {
-                $crate::error::set_last_error(&agent_desktop_core::error::AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::InvalidArgs,
+                $crate::error::set_last_error(&deskpilot_core::error::AdapterError::new(
+                    deskpilot_core::error::ErrorCode::InvalidArgs,
                     concat!($label, " is not valid UTF-8"),
                 ));
                 return $crate::error::AdResult::ErrInvalidArgs;

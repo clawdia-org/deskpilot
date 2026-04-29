@@ -1,4 +1,4 @@
-use agent_desktop_core::{
+use deskpilot_core::{
     action::{Action, ActionResult, DragParams, MouseEvent, WindowOp},
     adapter::{
         ImageBuffer, NativeHandle, PermissionStatus, PlatformAdapter, ScreenshotTarget,
@@ -117,8 +117,8 @@ impl PlatformAdapter for MacOSAdapter {
     fn press_key_for_app(
         &self,
         app_name: &str,
-        combo: &agent_desktop_core::action::KeyCombo,
-    ) -> Result<agent_desktop_core::action::ActionResult, AdapterError> {
+        combo: &deskpilot_core::action::KeyCombo,
+    ) -> Result<deskpilot_core::action::ActionResult, AdapterError> {
         crate::system::key_dispatch::press_for_app_impl(app_name, combo)
     }
 
@@ -233,7 +233,7 @@ impl PlatformAdapter for MacOSAdapter {
         crate::tree::build_subtree(&el, 0, 0, opts.max_depth, &mut ancestors, opts.skeleton)
             .ok_or_else(|| {
                 AdapterError::new(
-                    agent_desktop_core::error::ErrorCode::ElementNotFound,
+                    deskpilot_core::error::ErrorCode::ElementNotFound,
                     "Element no longer exists in accessibility tree",
                 )
                 .with_suggestion("Run 'snapshot' to refresh refs, then retry.")
