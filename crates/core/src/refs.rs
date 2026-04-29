@@ -141,7 +141,7 @@ impl Default for RefMap {
 
 fn refmap_path() -> Result<PathBuf, AppError> {
     let home = home_dir().ok_or_else(|| AppError::Internal("HOME directory not found".into()))?;
-    Ok(home.join(".agent-desktop").join("last_refmap.json"))
+    Ok(home.join(".deskpilot").join("last_refmap.json"))
 }
 
 fn home_dir() -> Option<PathBuf> {
@@ -177,7 +177,7 @@ mod tempdir {
                 .duration_since(UNIX_EPOCH)
                 .map(|d| d.as_nanos())
                 .unwrap_or(0);
-            let path = std::env::temp_dir().join(format!("agent-desktop-test-{nanos}-{n}"));
+            let path = std::env::temp_dir().join(format!("deskpilot-test-{nanos}-{n}"));
             fs::create_dir_all(&path).expect("create tempdir");
             Self(path)
         }

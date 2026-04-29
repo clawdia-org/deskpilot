@@ -1,15 +1,15 @@
 {
-  "name": "agent-desktop",
+  "name": "deskpilot",
   "version": "0.1.13",
   "description": "AI agent tool for observing and controlling desktop applications via native OS accessibility trees",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lahfir/agent-desktop.git"
+    "url": "https://github.com/clawdia-org/deskpilot.git"
   },
-  "homepage": "https://github.com/lahfir/agent-desktop",
+  "homepage": "https://github.com/clawdia-org/deskpilot",
   "bin": {
-    "agent-desktop": "./bin/agent-desktop.js"
+    "deskpilot": "./bin/deskpilot.js"
   },
   "scripts": {
     "postinstall": "node scripts/postinstall.js"
@@ -28,6 +28,10 @@
     "cli",
     "agent",
     "macos",
-    "a11y"
+    "windows",
+    "linux",
+    "a11y",
+    "ai",
+    "llm"
   ]
 }

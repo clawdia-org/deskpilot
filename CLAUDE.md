@@ -17,7 +17,7 @@ cargo fmt --all                                # Auto-format
 cargo tree -p agent-desktop-core               # Verify no platform crate leaks (CI enforces)
 ```
 
-Run the binary: `./target/release/agent-desktop snapshot --app Finder -i`
+Run the binary: `./target/release/deskpilot snapshot --app Finder -i`
 
 ## Pre-commit Hook
 

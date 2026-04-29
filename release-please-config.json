@@ -6,7 +6,7 @@
   "include-component-in-tag": false,
   "packages": {
     ".": {
-      "package-name": "agent-desktop",
+      "package-name": "deskpilot",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {

@@ -1,0 +1,86 @@
+name: Update Homebrew tap
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-tap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release info
+        id: release
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_no_v=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Download checksums
+        id: checksums
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          BASE="https://github.com/clawdia-org/deskpilot/releases/download/${VERSION}"
+
+          SHA_MACOS_ARM=$(curl -fsSL "${BASE}/deskpilot-aarch64-apple-darwin.tar.gz.sha256" | awk '{print $1}')
+          SHA_MACOS_X86=$(curl -fsSL "${BASE}/deskpilot-x86_64-apple-darwin.tar.gz.sha256" | awk '{print $1}')
+
+          echo "sha_macos_arm=${SHA_MACOS_ARM}" >> $GITHUB_OUTPUT
+          echo "sha_macos_x86=${SHA_MACOS_X86}" >> $GITHUB_OUTPUT
+
+      - name: Checkout homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: clawdia-org/homebrew-tap
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          VERSION_NO_V="${{ steps.release.outputs.version_no_v }}"
+          SHA_ARM="${{ steps.checksums.outputs.sha_macos_arm }}"
+          SHA_X86="${{ steps.checksums.outputs.sha_macos_x86 }}"
+
+          cat > homebrew-tap/Formula/deskpilot.rb << 'FORMULA'
+class Deskpilot < Formula
+  desc "AI agent tool for observing and controlling desktop apps via accessibility APIs"
+  homepage "https://github.com/clawdia-org/deskpilot"
+  license "Apache-2.0"
+
+  on_macos do
+    on_arm do
+      url "URL_ARM"
+      sha256 "SHA_ARM"
+    end
+    on_intel do
+      url "URL_X86"
+      sha256 "SHA_X86"
+    end
+  end
+
+  def install
+    bin.install "deskpilot"
+  end
+
+  test do
+    output = shell_output("#{bin}/deskpilot version --json")
+    assert_match version.to_s, output
+  end
+end
+FORMULA
+
+          # Substitute placeholders with actual values
+          sed -i "s|URL_ARM|https://github.com/clawdia-org/deskpilot/releases/download/${VERSION}/deskpilot-aarch64-apple-darwin.tar.gz|" homebrew-tap/Formula/deskpilot.rb
+          sed -i "s|SHA_ARM|${SHA_ARM}|" homebrew-tap/Formula/deskpilot.rb
+          sed -i "s|URL_X86|https://github.com/clawdia-org/deskpilot/releases/download/${VERSION}/deskpilot-x86_64-apple-darwin.tar.gz|" homebrew-tap/Formula/deskpilot.rb
+          sed -i "s|SHA_X86|${SHA_X86}|" homebrew-tap/Formula/deskpilot.rb
+          sed -i "s|license \"Apache-2.0\"|version \"${VERSION_NO_V}\"\n  license \"Apache-2.0\"|" homebrew-tap/Formula/deskpilot.rb
+
+      - name: Commit and push
+        run: |
+          cd homebrew-tap
+          git config user.name "Clawdia"
+          git config user.email "clawdiacool@gmail.com"
+          git add Formula/deskpilot.rb
+          git commit -m "chore: update deskpilot to ${{ steps.release.outputs.version }}"
+          git push

@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --all-targets -- -D warnings
+
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --lib --workspace
+
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+
+  core-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: |
+          OUTPUT=$(cargo tree -p agent-desktop-core 2>&1)
+          if echo "$OUTPUT" | grep -qE 'agent-desktop-(macos|windows|linux)'; then
+            echo "ERROR: core crate depends on a platform crate!"
+            echo "$OUTPUT"
+            exit 1
+          fi
+          echo "Core isolation check passed"
+
+  npm-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate package.json
+        run: node -e "JSON.parse(require('fs').readFileSync('npm/package.json', 'utf8')); console.log('package.json is valid')"
+      - name: Syntax check JS files
+        run: |
+          node --check npm/bin/deskpilot.js
+          node --check npm/scripts/postinstall.js
+      - name: Dry-run npm pack
+        run: cd npm && npm pack --dry-run
+
+  homebrew-validate:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate formula with stub values
+        run: |
+          mkdir -p /tmp/homebrew-tap/Formula
+          python3 -c "
+          content = '''class Deskpilot < Formula
+            desc \"AI agent tool for observing and controlling desktop apps via accessibility APIs\"
+            homepage \"https://github.com/clawdia-org/deskpilot\"
+            version \"0.1.13\"
+            license \"Apache-2.0\"
+
+            on_macos do
+              on_arm do
+                url \"https://github.com/clawdia-org/deskpilot/releases/download/v0.1.13/deskpilot-aarch64-apple-darwin.tar.gz\"
+                sha256 \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"
+              end
+              on_intel do
+                url \"https://github.com/clawdia-org/deskpilot/releases/download/v0.1.13/deskpilot-x86_64-apple-darwin.tar.gz\"
+                sha256 \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"
+              end
+            end
+
+            def install
+              bin.install \"deskpilot\"
+            end
+
+            test do
+              output = shell_output(\"#{bin}/deskpilot version --json\")
+              assert_match version.to_s, output
+            end
+          end
+          '''
+          open('/tmp/homebrew-tap/Formula/deskpilot.rb', 'w').write(content)
+          "
+      - name: Validate formula syntax
+        run: ruby -c /tmp/homebrew-tap/Formula/deskpilot.rb
