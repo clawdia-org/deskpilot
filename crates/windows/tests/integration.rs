@@ -5,8 +5,8 @@
 
 #[cfg(target_os = "windows")]
 mod tests {
-    use deskpilot_windows::WindowsAdapter;
     use deskpilot_core::adapter::PlatformAdapter;
+    use deskpilot_windows::WindowsAdapter;
 
     fn get_adapter() -> WindowsAdapter {
         WindowsAdapter::new()
@@ -17,7 +17,10 @@ mod tests {
         let adapter = get_adapter();
         let status = adapter.check_permissions();
         // On Windows, permissions should always be granted
-        assert!(matches!(status, deskpilot_core::adapter::PermissionStatus::Granted));
+        assert!(matches!(
+            status,
+            deskpilot_core::adapter::PermissionStatus::Granted
+        ));
     }
 
     #[test]
