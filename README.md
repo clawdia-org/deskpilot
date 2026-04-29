@@ -1,15 +1,15 @@
-<h1 align="center">AGENT DESKTOP</h1>
+<h1 align="center">DESKPILOT</h1>
 
 <p align="center">
   <strong>OBSERVE. DECIDE. ACT.</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/lahfir/deskpilot/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/lahfir/deskpilot/ci.yml?branch=main&style=for-the-badge" alt="CI status"></a>
-  <a href="https://github.com/lahfir/deskpilot/releases"><img src="https://img.shields.io/github/v/release/lahfir/deskpilot?include_prereleases&style=for-the-badge" alt="GitHub release"></a>
+  <a href="https://github.com/clawdia-org/deskpilot/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/clawdia-org/deskpilot/ci.yml?branch=main&style=for-the-badge" alt="CI status"></a>
+  <a href="https://github.com/clawdia-org/deskpilot/releases"><img src="https://img.shields.io/github/v/release/clawdia-org/deskpilot?include_prereleases&style=for-the-badge" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/deskpilot"><img src="https://img.shields.io/npm/v/deskpilot?label=npm&style=for-the-badge" alt="npm version"></a>
-  <a href="https://clawhub.ai/lahfir/deskpilot"><img src="https://img.shields.io/badge/ClawHub-skill-f97316?style=for-the-badge" alt="ClawHub skill"></a>
-  <a href="https://skills.sh/lahfir/deskpilot/deskpilot"><img src="https://img.shields.io/badge/skills.sh-listed-8b5cf6?style=for-the-badge" alt="skills.sh listing"></a>
+  <a href="https://clawhub.ai/clawdia-org/deskpilot"><img src="https://img.shields.io/badge/ClawHub-skill-f97316?style=for-the-badge" alt="ClawHub skill"></a>
+  <a href="https://skills.sh/clawdia-org/deskpilot/deskpilot"><img src="https://img.shields.io/badge/skills.sh-listed-8b5cf6?style=for-the-badge" alt="skills.sh listing"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue.svg?style=for-the-badge" alt="Apache-2.0 License"></a>
 </p>
 
@@ -21,11 +21,11 @@
   <img src="docs/architecture.png" alt="deskpilot architecture diagram" width="800" />
 </p>
 
-<a href="https://star-history.com/#lahfir/deskpilot&Date">
+<a href="https://star-history.com/#clawdia-org/deskpilot&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=lahfir/deskpilot&type=Date&theme=dark">
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=lahfir/deskpilot&type=Date">
-    <img alt="Star history for lahfir/deskpilot" src="https://api.star-history.com/svg?repos=lahfir/deskpilot&type=Date">
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=clawdia-org/deskpilot&type=Date&theme=dark">
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=clawdia-org/deskpilot&type=Date">
+    <img alt="Star history for clawdia-org/deskpilot" src="https://api.star-history.com/svg?repos=clawdia-org/deskpilot&type=Date">
   </picture>
 </a>
 
@@ -57,7 +57,7 @@ npx deskpilot snapshot --app Finder -i
 ### From source
 
 ```bash
-git clone https://github.com/lahfir/deskpilot
+git clone https://github.com/clawdia-org/deskpilot
 cd deskpilot
 cargo build --release
 cp target/release/deskpilot /usr/local/bin/
@@ -89,7 +89,7 @@ Each archive contains `lib/libdeskpilot_ffi.{dylib,so,dll}`, `include/deskpilot.
 
 ```bash
 shasum -a 256 -c checksums.txt
-gh attestation verify deskpilot-ffi-v*.tar.gz --repo lahfir/deskpilot   # Sigstore provenance
+gh attestation verify deskpilot-ffi-v*.tar.gz --repo clawdia-org/deskpilot   # Sigstore provenance
 ```
 
 Minimal Python round-trip:
