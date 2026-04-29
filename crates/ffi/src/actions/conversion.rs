@@ -14,10 +14,10 @@ fn direction_from_c(d: AdDirection) -> Direction {
     }
 }
 
-/// Four modifier keys exist (`AdModifier::{Cmd, Ctrl, Alt, Shift}`),
-/// so a combo can name at most four. Anything larger must be bogus
+/// Five modifier keys exist (`AdModifier::{Cmd, Ctrl, Alt, Shift, Meta}`),
+/// so a combo can name at most five. Anything larger must be bogus
 /// input — bail out instead of trusting it into `from_raw_parts`.
-const MAX_MODIFIERS_PER_COMBO: u32 = 4;
+const MAX_MODIFIERS_PER_COMBO: u32 = 5;
 
 pub(crate) unsafe fn key_combo_from_c(k: &AdKeyCombo) -> Result<CoreKeyCombo, &'static str> {
     let key = c_to_string(k.key).ok_or("key is null or invalid UTF-8")?;
@@ -39,6 +39,7 @@ pub(crate) unsafe fn key_combo_from_c(k: &AdKeyCombo) -> Result<CoreKeyCombo, &'
                 AdModifier::Ctrl => Modifier::Ctrl,
                 AdModifier::Alt => Modifier::Alt,
                 AdModifier::Shift => Modifier::Shift,
+                AdModifier::Meta => Modifier::Meta,
             };
             modifiers.push(modifier);
         }

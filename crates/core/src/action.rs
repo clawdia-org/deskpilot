@@ -85,12 +85,34 @@ pub struct KeyCombo {
     pub modifiers: Vec<Modifier>,
 }
 
+/// Keyboard modifier keys.
+///
+/// # Platform Mapping
+///
+/// | Variant | macOS | Windows | Linux |
+/// |---------|-------|---------|-------|
+/// | `Cmd`   | ⌘     | Ctrl    | Ctrl  |
+/// | `Ctrl`  | ⌃     | Ctrl    | Ctrl  |
+/// | `Alt`   | ⌥     | Alt     | Alt   |
+/// | `Shift` | ⇧     | Shift   | Shift |
+/// | `Meta`  | ⌘     | Win     | Super |
+///
+/// `Cmd` is preserved for backward compatibility with macOS-first code.
+/// For cross-platform key combos, prefer `Meta` which maps to the platform's
+/// "super" key (⌘ on macOS, Win on Windows, Super on Linux).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Modifier {
+    /// macOS ⌘ key. Maps to Ctrl on Windows/Linux.
     Cmd,
+    /// Control key (⌃ on macOS). Consistent across platforms.
     Ctrl,
+    /// Alt/Option key (⌥ on macOS). Consistent across platforms.
     Alt,
+    /// Shift key. Consistent across platforms.
     Shift,
+    /// Platform "super" key: ⌘ on macOS, Win on Windows, Super on Linux.
+    /// Use this for cross-platform shortcuts like Meta+C for copy.
+    Meta,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

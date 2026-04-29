@@ -39,6 +39,23 @@ pub fn execute(args: PressArgs, adapter: &dyn PlatformAdapter) -> Result<Value, 
     Ok(serde_json::to_value(result)?)
 }
 
+/// Parse a key combo string like "cmd+shift+s" or "meta+c".
+///
+/// # Supported Modifiers
+///
+/// - `cmd`, `command` → `Modifier::Cmd` (macOS ⌘, maps to Ctrl on Windows/Linux)
+/// - `ctrl`, `control` → `Modifier::Ctrl` (consistent across platforms)
+/// - `alt`, `option` → `Modifier::Alt` (consistent across platforms)
+/// - `shift` → `Modifier::Shift` (consistent across platforms)
+/// - `meta`, `super`, `win` → `Modifier::Meta` (platform super key)
+///
+/// # Examples
+///
+/// ```ignore
+/// parse_combo("cmd+s")?;      // macOS save
+/// parse_combo("ctrl+s")?;     // Windows/Linux save
+/// parse_combo("meta+c")?;     // Cross-platform copy
+/// ```
 pub fn parse_combo(s: &str) -> Result<KeyCombo, AppError> {
     let parts: Vec<&str> = s.split('+').collect();
     let key = parts
@@ -55,9 +72,10 @@ pub fn parse_combo(s: &str) -> Result<KeyCombo, AppError> {
             "ctrl" | "control" => Modifier::Ctrl,
             "alt" | "option" => Modifier::Alt,
             "shift" => Modifier::Shift,
+            "meta" | "super" | "win" => Modifier::Meta,
             other => {
                 return Err(AppError::invalid_input(format!(
-                    "Unknown modifier: '{other}'"
+                    "Unknown modifier: '{other}'. Use: cmd, ctrl, alt, shift, meta"
                 )))
             }
         };

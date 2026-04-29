@@ -49,6 +49,7 @@ enum AdModifier {
   AD_MODIFIER_CTRL = 1,
   AD_MODIFIER_ALT = 2,
   AD_MODIFIER_SHIFT = 3,
+  AD_MODIFIER_META = 4,
 };
 typedef int32_t AdModifier;
 

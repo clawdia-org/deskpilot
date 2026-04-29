@@ -162,7 +162,7 @@ fn combo_to_ax_modifiers(combo: &KeyCombo) -> u32 {
             Modifier::Shift => mods |= 1 << 0,
             Modifier::Alt => mods |= 1 << 1,
             Modifier::Ctrl => mods |= 1 << 2,
-            Modifier::Cmd => {}
+            Modifier::Cmd | Modifier::Meta => {}
         }
     }
     mods
@@ -213,6 +213,7 @@ fn format_combo(combo: &KeyCombo) -> String {
             Modifier::Ctrl => "ctrl",
             Modifier::Alt => "alt",
             Modifier::Shift => "shift",
+            Modifier::Meta => "cmd",
         })
         .collect();
     if mods.is_empty() {

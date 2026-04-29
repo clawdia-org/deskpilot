@@ -12,15 +12,42 @@ pub struct WindowFilter {
     pub app: Option<String>,
 }
 
+/// Which UI surface to snapshot within a window's accessibility tree.
+///
+/// # Platform Mapping
+///
+/// | Variant   | macOS (AX)                  | Windows (UIA)                          | Linux (AT-SPI2)                    |
+/// |-----------|-----------------------------|----------------------------------------|------------------------------------|
+/// | `Window`  | Main window element         | `UIA_WindowControlTypeId`              | `Role::Frame`                      |
+/// | `Focused` | Focused child surface       | `UIA_FocusedElement`                   | Focused accessible via AT-SPI2     |
+/// | `Menu`    | `AXMenu` (context menu)     | `UIA_MenuControlTypeId`                | `Role::Menu` / `Role::PopupMenu`   |
+/// | `Menubar` | `AXMenuBar`                 | `UIA_MenuBarControlTypeId`             | `Role::MenuBar`                    |
+/// | `Sheet`   | `AXSheet` (modal sheet)     | `UIA_WindowControlTypeId` (modal)      | `Role::Dialog` (modal)             |
+/// | `Popover` | `AXPopover`                 | `UIA_WindowControlTypeId` (popup/tool) | `Role::Dialog` (non-modal)         |
+/// | `Alert`   | `AXDialog` / `AXSystemDialog` | `UIA_WindowControlTypeId` (dialog)   | `Role::Alert` / `Role::Dialog`     |
+///
+/// macOS surfaces are detected via AX role attributes. Windows adapters should
+/// use UIA control types and window styles to identify equivalent surfaces.
+/// Linux adapters should use AT-SPI2 roles from `org.a11y.atspi.Accessible`.
+///
+/// Not all surfaces exist on all platforms. Adapters should return
+/// `ErrorCode::ElementNotFound` when a requested surface is not present.
 #[derive(Debug, Clone, Copy, Default)]
 pub enum SnapshotSurface {
+    /// The main window content tree. Available on all platforms.
     #[default]
     Window,
+    /// The currently focused child surface within the window.
     Focused,
+    /// An open context menu. macOS: `AXMenu`. Windows: `UIA_MenuControlTypeId`.
     Menu,
+    /// The application menu bar. macOS: `AXMenuBar`. Windows: `UIA_MenuBarControlTypeId`.
     Menubar,
+    /// A modal sheet attached to the window. macOS: `AXSheet`. Windows: modal dialog.
     Sheet,
+    /// A popover or tooltip surface. macOS: `AXPopover`. Windows: popup/tool window.
     Popover,
+    /// An alert or dialog box. macOS: `AXDialog`/`AXSystemDialog`. Windows: dialog window.
     Alert,
 }
 
@@ -58,6 +85,34 @@ pub enum PermissionStatus {
     Denied { suggestion: String },
 }
 
+/// A token proving we are on the main thread.
+///
+/// Phase 1 is single-threaded CLI, so this is trivially satisfied.
+/// In Phase 4 (async daemon), callers must obtain this token via
+/// `MainThreadToken::acquire()` which will use platform-specific
+/// checks (e.g., `NSThread.isMainThread` on macOS, thread-local
+/// COM apartment on Windows).
+///
+/// This replaces the bare `unsafe impl Send/Sync for NativeHandle`
+/// with a compile-time guard: code that moves a `NativeHandle` to
+/// another thread must prove it has a `MainThreadToken`.
+#[derive(Debug, Clone, Copy)]
+pub struct MainThreadToken {
+    _private: (),
+}
+
+impl MainThreadToken {
+    /// Create a main-thread token.
+    ///
+    /// # Safety
+    ///
+    /// Caller must be on the main thread. In Phase 1 (single-threaded CLI)
+    /// this is always true. Phase 4 must add runtime verification.
+    pub unsafe fn assume_main_thread() -> Self {
+        Self { _private: () }
+    }
+}
+
 pub struct NativeHandle {
     pub(crate) ptr: *const std::ffi::c_void,
     _not_send_sync: PhantomData<*const ()>,
@@ -87,9 +142,20 @@ impl NativeHandle {
     }
 }
 
-// SAFETY: Phase 1 is single-threaded CLI. NativeHandle is never sent across thread
-// boundaries. The unsafe impls are required for use with dyn PlatformAdapter (which
-// is Send + Sync). Remove in Phase 4 when async daemon is introduced.
+// SAFETY: Phase 1 is single-threaded CLI. NativeHandle wraps a platform
+// pointer (AXUIElementRef on macOS, HWND on Windows) that must only be
+// accessed from the thread that created it.
+//
+// These impls are required because `dyn PlatformAdapter` is `Send + Sync`
+// and trait methods accept `&NativeHandle`. In Phase 1 this is safe because
+// the CLI is single-threaded.
+//
+// Phase 4 migration plan:
+// 1. Remove these unsafe impls
+// 2. Use `MainThreadToken` to gate all handle creation and access
+// 3. Use channel-based dispatch (mpsc) to bounce handle operations
+//    back to the main thread from async tasks
+// 4. Platform adapters validate `MainThreadToken` in debug builds
 unsafe impl Send for NativeHandle {}
 unsafe impl Sync for NativeHandle {}
 

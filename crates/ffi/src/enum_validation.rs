@@ -45,7 +45,7 @@ try_from_c_enum! {
 
 try_from_c_enum! {
     AdModifier {
-        Cmd = 0, Ctrl = 1, Alt = 2, Shift = 3,
+        Cmd = 0, Ctrl = 1, Alt = 2, Shift = 3, Meta = 4,
     }
 }
 
@@ -116,10 +116,11 @@ mod tests {
 
     #[test]
     fn test_modifier_valid_range() {
-        for raw in 0..=3 {
+        for raw in 0..=4 {
             assert!(AdModifier::from_c(raw).is_some());
         }
         assert!(AdModifier::from_c(-5).is_none());
+        assert!(AdModifier::from_c(5).is_none());
     }
 
     #[test]
