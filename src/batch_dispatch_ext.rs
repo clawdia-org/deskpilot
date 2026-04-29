@@ -1,9 +1,9 @@
 use deskpilot_core::{
     commands::{
-        capabilities, clipboard_clear, clipboard_get, clipboard_set, close_app, dismiss_all_notifications,
-        dismiss_notification, focus_window, launch, list_apps, list_notifications, list_surfaces,
-        list_windows, maximize, minimize, move_window, notification_action, permissions,
-        resize_window, restore, status, version, wait,
+        capabilities, clipboard_clear, clipboard_get, clipboard_set, close_app,
+        dismiss_all_notifications, dismiss_notification, focus_window, launch, list_apps,
+        list_notifications, list_surfaces, list_windows, maximize, minimize, move_window,
+        notification_action, permissions, resize_window, restore, status, version, wait,
     },
     error::AppError,
 };

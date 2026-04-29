@@ -1,3 +1,5 @@
+#![cfg(target_os = "linux")]
+
 use deskpilot_core::adapter::PlatformAdapter;
 
 pub struct LinuxAdapter;

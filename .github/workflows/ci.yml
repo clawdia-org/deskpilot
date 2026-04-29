@@ -27,6 +27,27 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --all-targets -- -D warnings
 
+  clippy-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      # Windows may have platform-specific warnings; allow them for now
+      - run: cargo clippy --package deskpilot --package deskpilot-core --package deskpilot-windows --package deskpilot-ffi --all-targets --target x86_64-pc-windows-msvc -- -W warnings
+
+  clippy-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --package deskpilot --package deskpilot-core --package deskpilot-linux --package deskpilot-ffi --all-targets -- -D warnings
+
   test:
     runs-on: macos-latest
     steps:
@@ -35,13 +56,29 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --lib --workspace
 
-  build:
+  build-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --package deskpilot --package deskpilot-core --package deskpilot-windows --package deskpilot-ffi
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --package deskpilot --package deskpilot-core --package deskpilot-linux --package deskpilot-ffi
 
   core-isolation:
     runs-on: ubuntu-latest

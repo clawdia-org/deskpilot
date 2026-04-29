@@ -7,3 +7,6 @@ license.workspace = true
 [dependencies]
 deskpilot-core.workspace = true
 thiserror.workspace          = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+atspi = { version = "0.22", optional = true }
