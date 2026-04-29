@@ -35,6 +35,14 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --lib --workspace
 
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+
   core-isolation:
     runs-on: ubuntu-latest
     steps:
